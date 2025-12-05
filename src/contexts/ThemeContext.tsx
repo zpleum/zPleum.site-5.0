@@ -21,9 +21,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             setTheme(savedTheme);
             document.documentElement.setAttribute("data-theme", savedTheme);
         } else {
-            // Check system preference
-            const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-            const initialTheme = prefersDark ? "dark" : "light";
+            // Default to light mode for first-time visitors
+            const initialTheme = "light";
             setTheme(initialTheme);
             document.documentElement.setAttribute("data-theme", initialTheme);
         }

@@ -15,7 +15,6 @@ export function middleware(request: NextRequest) {
   }
 
   const hostname = request.headers.get("host") || "";
-  console.log("Middleware triggered, hostname:", hostname);
 
   const cleanHost = hostname.split(":")[0];
   const subdomain = cleanHost.split(".")[0];
@@ -24,8 +23,8 @@ export function middleware(request: NextRequest) {
     cleanHost === "zpleum.site" ||
     cleanHost === "www.zpleum.site";
 
-  if (!isMainSite) {
-    console.log("Rewriting to /edge because subdomain:", subdomain);
+  const specialSubdomains = ["github", "facebook", "discord", "mail"];
+  if (!isMainSite && specialSubdomains.includes(subdomain)) {
     const url = request.nextUrl.clone();
     url.pathname = "/edge";
     return NextResponse.rewrite(url);

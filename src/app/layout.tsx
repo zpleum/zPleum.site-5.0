@@ -25,7 +25,11 @@ const sovKhongKhanad = localFontLoader({
 
 import { query } from "@/lib/db";
 
+export const revalidate = 0;
+
 export async function generateMetadata(): Promise<Metadata> {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://zpleum.site';
+
   try {
     interface SeoSettings {
       site_title: string;
@@ -41,6 +45,7 @@ export async function generateMetadata(): Promise<Metadata> {
     if (seoSettings && seoSettings.length > 0) {
       const { site_title, site_description, keywords, og_image } = seoSettings[0];
       return {
+        metadataBase: new URL(baseUrl),
         title: {
           default: site_title,
           template: `%s | ${site_title}`
@@ -51,6 +56,10 @@ export async function generateMetadata(): Promise<Metadata> {
           title: site_title,
           description: site_description,
           images: og_image ? [og_image] : [],
+          url: baseUrl,
+          siteName: site_title,
+          locale: 'en_US',
+          type: 'website',
         },
         twitter: {
           card: 'summary_large_image',
@@ -65,6 +74,7 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 
   return {
+    metadataBase: new URL(baseUrl),
     title: "zPleum - Full Stack Developer",
     description: "Portfolio of Wiraphat Makwong, aka Pleum, Full Stack Developer",
   };

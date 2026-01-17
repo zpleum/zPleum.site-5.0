@@ -1,36 +1,116 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🏗️ zPleum.site — Foundry Architecture v5.0
 
-## Getting Started
+> **Neural Uplink Established.** A premium, high-performance personal ecosystem built with surgical precision and a high-end "Foundry" aesthetic.
 
-First, run the development server:
+[![Framework: Next.js 15](https://img.shields.io/badge/Framework-Next.js%2015-000000?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![Style: Tailwind 4](https://img.shields.io/badge/Style-Tailwind%204-06B6D4?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 
+---
+
+## 🏛️ Project Overview
+
+**zPleum.site** is more than a portfolio; it's a unified command center. Designed with a custom-engineered "Foundry" design system, it emphasizes mechanical depth, glassmorphism, and surgical typography to create a high-end technical experience.
+
+### 🛰️ Core Modules
+
+*   **🛡️ Command Center (Admin)**: A centralized dashboard for platform management, featuring real-time telemetry and architectural controls.
+*   **📡 System Telemetry**: Integrated health monitoring for database status, memory heap usage, uptime, and environment configuration.
+*   **🚨 Incident Logs**: Active response recording system for tracking platform events and security anomalies.
+*   **🔐 Security Uplink**: Advanced authentication protocol with **Two-Factor (TOTP) Encryption**, JWT-based sessions, and secure HttpOnly cookie management.
+*   **📧 Fail-Safe Transmissions**: Contact portal integrated with Cloudflare Turnstile and a "Mailto" redundancy protocol for guaranteed deliverability.
+*   **🖼️ Visual Registry**: High-performance gallery and project showcases featuring modular masonry layouts and immersive lightboxes.
+
+---
+
+## 🛠️ Technical Stack
+
+- **Core**: [Next.js 15](https://nextjs.org/) (App Router), TypeScript, React 19
+- **Aesthetics**: Tailwind CSS 4, [Framer Motion](https://www.framer.com/motion/)
+- **Intelligence**: Custom Telemetry API, Activity Logging Engine
+- **Data**: MySQL / MariaDB via Serverless Query layer
+- **Communication**: [Resend](https://resend.com/) for Transactional Email
+- **Security**: HttpOnly Cookies, JWT, [Speakeasy (TOTP)](https://github.com/speakeasyjs/speakeasy), [Cloudflare Turnstile](https://www.cloudflare.com/products/turnstile/)
+
+---
+
+## 🚀 Getting Started
+
+### 1. Verification of Requirements
+Ensure you have **Node.js 18+** and a **MySQL** instance operational.
+
+### 2. Neural Initialization
 ```bash
+# Clone the repository
+git clone https://github.com/zpleum/zPleum.site.git
+
+# Enter the architectural core
+cd zPleum.site
+
+# Install dependencies
+npm install
+
+# Initialize development sequence
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 3. Environment Configuration
+Create a `.env` file in the root directory based on `.env.example`:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```env
+RESEND_API_KEY=your_resend_api_key
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+CLOUDFLARE_SECRET=your_cloudflare_turnstile_secret_key
+NEXT_PUBLIC_CLOUDFLARE_SITE_KEY=your_cloudflare_turnstile_key
 
-## Learn More
+# Database Configuration
+DB_HOST=your_database_host
+DB_USER=your_database_user
+DB_PASSWORD=your_mysql_password
+DB_NAME=your_database_name
+DB_PORT=3306
 
-To learn more about Next.js, take a look at the following resources:
+# For cloud databases (TiDB Cloud, PlanetScale, etc.) that require SSL
+DB_SSL=true
+DB_SSL_REJECT_UNAUTHORIZED=true
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# JWT Secrets (generate with: openssl rand -base64 32)
+JWT_ACCESS_SECRET=your_random_access_secret_here
+JWT_REFRESH_SECRET=your_random_refresh_secret_here
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# TOTP Encryption (generate with: openssl rand -hex 32)
+TOTP_ENCRYPTION_KEY=your_64_char_hex_encryption_key_here
 
-## Deploy on Vercel
+# Admin Registration (set to 'true' to enable temporary registration)
+ENABLE_ADMIN_REGISTRATION=false
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+# App URL
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## 📂 Architectural Structure
+
+```text
+src/
+├── app/              # Application Routes (Next.js App Router)
+│   ├── admin/        # Secured Command Center
+│   ├── api/          # Neural Link Endpoints (Telemetry, Incidents, etc.)
+│   └── (site)/       # Public Architectural Entities
+├── components/       # Interface Modules (Foundry UI)
+├── lib/              # Core Logic & Shared Utilities
+└── styles/           # Global Design Tokens & Foundry CSS
+```
+
+---
+
+## 📜 Licensing
+
+Distributed under the **MIT License**. See `LICENSE` for more information.
+
+---
+
+<p align="center">
+  <b>© 2026 WIRAPHAT MAKWONG. ALL SYSTEMS OPERATIONAL.</b>
+</p>

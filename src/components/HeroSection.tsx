@@ -1,175 +1,98 @@
 "use client";
 
-import React from "react";
-import Image from "next/image";
 import { motion } from "framer-motion";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Sparkles, Terminal, Shield, Zap } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 
-const HeroSection = () => {
-  return (
-    <section className="relative w-full min-h-screen flex flex-col items-center justify-center overflow-hidden px-4 py-24">
-      {/* Animated Gradient Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[var(--gradient-from)] via-[var(--gradient-via)] to-[var(--gradient-to)]">
-        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10"></div>
-      </div>
-
-      {/* Floating Orbs */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <motion.div
-          animate={{
-            x: [0, 100, 0],
-            y: [0, -100, 0],
-          }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            ease: "linear"
-          }}
-          className="absolute top-1/4 left-1/4 w-72 h-72 bg-blue-400/30 rounded-full blur-3xl"
-        />
-        <motion.div
-          animate={{
-            x: [0, -100, 0],
-            y: [0, 100, 0],
-          }}
-          transition={{
-            duration: 25,
-            repeat: Infinity,
-            ease: "linear"
-          }}
-          className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-400/30 rounded-full blur-3xl"
-        />
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className="relative z-10 max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12 md:gap-16"
-      >
-        {/* Profile Image - Left Side */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="relative group"
-        >
-          <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-full blur-lg opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-pulse"></div>
-          <div className="relative w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 rounded-full overflow-hidden border-4 border-[var(--card-bg)] shadow-2xl">
-            <Image
-              src="/profile.png"
-              alt="Profile"
-              fill
-              className="object-cover"
-              priority
-            />
-          </div>
-        </motion.div>
-
-        {/* Text Content - Right Side */}
-        <div className="flex flex-col items-center md:items-start text-center md:text-left max-w-2xl">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="inline-flex items-center gap-2 px-4 py-2 mb-6 text-sm font-medium bg-[var(--card-bg)]/80 backdrop-blur-sm border border-[var(--accent-blue)]/30 rounded-full shadow-lg"
-          >
-            <Sparkles size={16} className="text-[var(--accent-blue)]" />
-            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Full Stack Developer
-            </span>
-          </motion.div>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="text-5xl md:text-6xl lg:text-7xl font-bold text-[var(--foreground)] mb-6 tracking-tight leading-tight"
-          >
-            Crafting{" "}
-            <span className="font-[family-name:var(--font-sov-khongkhanad)] bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent animate-gradient">
-              Beautiful
-            </span>
-            <br className="hidden md:block" />
-            Digital Experiences
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.5 }}
-            className="text-lg md:text-xl text-[var(--foreground-muted)] mb-8 leading-relaxed"
-          >
-            Hi, I&apos;m <span className="font-semibold text-[var(--foreground)]">Wiraphat Makwong</span>.
-            I build accessible, pixel-perfect, and performant web applications that solve real-world problems with elegant solutions.
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start items-center w-full sm:w-auto"
-          >
-            <a
-              href="/project"
-              className="group relative px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-full hover:shadow-2xl hover:shadow-blue-500/50 transition-all duration-300 flex items-center gap-2 overflow-hidden"
-            >
-              <span className="relative z-10">View Projects</span>
-              <ArrowRight size={18} className="relative z-10 group-hover:translate-x-1 transition-transform" />
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            </a>
-            <a
-              href="/contact"
-              className="px-8 py-4 bg-[var(--card-bg)]/80 backdrop-blur-sm text-[var(--foreground)] border-2 border-[var(--border)] font-semibold rounded-full hover:bg-[var(--card-bg)] hover:border-[var(--accent-blue)] hover:shadow-lg transition-all duration-300"
-            >
-              Contact Me
-            </a>
-          </motion.div>
-
-          {/* Stats */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.7 }}
-            className="flex gap-8 mt-12 pt-8 border-t border-[var(--border)]"
-          >
-            <div className="text-center md:text-left">
-              <div className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">5+</div>
-              <div className="text-sm text-[var(--foreground-muted)]">Years Experience</div>
+export default function HeroSection() {
+    return (
+        <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden pt-20">
+            {/* Foundry Background Architecture */}
+            <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.03]"></div>
+                <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[120px] -translate-y-1/2"></div>
+                <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-[120px] translate-y-1/2"></div>
             </div>
-            <div className="text-center md:text-left">
-              <div className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">50+</div>
-              <div className="text-sm text-[var(--foreground-muted)]">Projects Completed</div>
-            </div>
-            <div className="text-center md:text-left">
-              <div className="text-3xl font-bold bg-gradient-to-r from-pink-600 to-blue-600 bg-clip-text text-transparent">100%</div>
-              <div className="text-sm text-[var(--foreground-muted)]">Client Satisfaction</div>
-            </div>
-          </motion.div>
-        </div>
-      </motion.div>
 
-      {/* Scroll Indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1, delay: 1 }}
-        className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
-      >
-        <motion.div
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          className="w-6 h-10 border-2 border-[var(--foreground)]/40 rounded-full flex justify-center"
-        >
-          <motion.div
-            animate={{ y: [0, 12, 0] }}
-            transition={{ duration: 2, repeat: Infinity }}
-            className="w-1.5 h-3 bg-[var(--foreground)]/40 rounded-full mt-2"
-          />
-        </motion.div>
-      </motion.div>
-    </section>
-  );
-};
+            <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 flex flex-col items-center text-center py-10 md:py-0">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6 }}
+                    className="inline-flex items-center gap-3 px-6 py-2.5 mb-8 text-sm font-black uppercase tracking-[0.3em] bg-blue-500/10 text-blue-500 rounded-full border border-blue-500/20"
+                >
+                    <Sparkles size={12} className="text-blue-500" />
+                    Available for New Ventures
+                </motion.div>
 
-export default HeroSection;
+                <motion.h1
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, delay: 0.1 }}
+                    className="text-4xl sm:text-7xl md:text-8xl lg:text-[10rem] font-black mb-8 leading-[0.9] sm:leading-[0.8] tracking-tighter uppercase"
+                >
+                    ENGINEERING <br />
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500">
+                        DIGITAL EXCELLENCE
+                    </span>
+                </motion.h1>
+
+                <motion.p
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, delay: 0.2 }}
+                    className="text-sm md:text-xl text-[var(--foreground-muted)] max-w-2xl mb-12 font-medium leading-relaxed border-l-2 border-blue-500/30 pl-5 sm:pl-8 mx-auto"
+                >
+                    Architecting secure, scalable, and high-performance full-stack ecosystems.
+                    Bridging the gap between complex engineering protocols and premium experiences.
+                </motion.p>
+
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.6, delay: 0.3 }}
+                    className="flex flex-col sm:flex-row gap-4 items-center w-full sm:w-auto mb-20"
+                >
+                    <Link
+                        href="/project"
+                        className="group w-full sm:w-auto px-12 py-6 bg-blue-600 hover:bg-blue-500 text-white text-sm font-black uppercase tracking-[0.2em] rounded-xl shadow-[0_20px_40px_rgba(37,99,235,0.2)] hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3"
+                    >
+                        Explore Projects
+                        <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                    <Link
+                        href="/contact"
+                        className="w-full sm:w-auto px-12 py-6 bg-[var(--card-bg)]/50 backdrop-blur-3xl text-[var(--foreground)] border border-[var(--border)] text-sm font-black uppercase tracking-[0.2em] rounded-xl hover:bg-blue-500/10 hover:border-blue-500/30 transition-all active:scale-95 flex items-center justify-center"
+                    >
+                        Collaborate
+                    </Link>
+                </motion.div>
+
+                {/* Technical Feature Grid */}
+                <motion.div
+                    initial={{ opacity: 0, y: 40 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 1, delay: 0.5 }}
+                    className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 text-left w-full"
+                >
+                    {[
+                        { icon: Terminal, title: "Architecture", desc: "Building from metal to pixel." },
+                        { icon: Shield, title: "Security Protocols", desc: "Prioritizing protection always." },
+                        { icon: Zap, title: "Optimization", desc: "Scalable performance & speed." }
+                    ].map((feature, i) => (
+                        <div key={i} className="flex items-center sm:items-start gap-4 sm:gap-5 p-5 sm:p-6 rounded-2xl bg-[var(--card-bg)]/30 backdrop-blur-3xl border border-[var(--border)] hover:bg-[var(--card-bg)]/50 hover:border-blue-500/30 transition-all duration-500 shadow-xl group">
+                            <div className="p-3 sm:p-3.5 rounded-xl bg-blue-500/10 text-blue-500 h-fit group-hover:scale-110 transition-transform duration-500">
+                                <feature.icon size={20} className="sm:w-[22px] sm:h-[22px]" />
+                            </div>
+                            <div>
+                                <h3 className="font-black text-xs sm:text-sm uppercase tracking-widest mb-1 text-[var(--foreground)]">{feature.title}</h3>
+                                <p className="text-[10px] sm:text-sm text-[var(--foreground-muted)] font-black uppercase tracking-tight opacity-40">{feature.desc}</p>
+                            </div>
+                        </div>
+                    ))}
+                </motion.div>
+            </div>
+        </section>
+    );
+}

@@ -10,6 +10,11 @@ import ThemeToggle from "./ThemeToggle";
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [socialLinks, setSocialLinks] = useState({
+    github_url: 'https://github.com/zPleum',
+    linkedin_url: 'https://linkedin.com/in/wiraphat-makwong',
+    facebook_url: 'https://www.facebook.com/wiraphat.makwong'
+  });
   const pathname = usePathname();
 
   useEffect(() => {
@@ -18,6 +23,21 @@ const Header = () => {
     };
 
     window.addEventListener("scroll", handleScroll);
+
+    // Fetch social links
+    fetch('/api/profile')
+      .then(res => res.json())
+      .then(data => {
+        if (data.profile) {
+          setSocialLinks({
+            github_url: data.profile.github_url || 'https://github.com/zPleum',
+            linkedin_url: data.profile.linkedin_url || 'https://linkedin.com/in/wiraphat-makwong',
+            facebook_url: data.profile.facebook_url || 'https://www.facebook.com/wiraphat.makwong'
+          });
+        }
+      })
+      .catch(err => console.error('Error fetching social links:', err));
+
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -64,7 +84,7 @@ const Header = () => {
             {/* Social Links */}
             <div className="hidden md:flex items-center gap-3">
               <a
-                href="https://github.com/zPleum"
+                href={socialLinks.github_url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-[var(--foreground)]/70 hover:text-[var(--primary)] transition-colors"
@@ -72,7 +92,7 @@ const Header = () => {
                 <Github size={20} />
               </a>
               <a
-                href="https://linkedin.com/in/wiraphat-makwong"
+                href={socialLinks.linkedin_url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-[var(--foreground)]/70 hover:text-[var(--primary)] transition-colors"
@@ -80,7 +100,7 @@ const Header = () => {
                 <Linkedin size={20} />
               </a>
               <a
-                href="https://www.facebook.com/wiraphat.makwong"
+                href={socialLinks.facebook_url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-[var(--foreground)]/70 hover:text-[#1877F2] transition-colors"
@@ -124,7 +144,7 @@ const Header = () => {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed top-0 right-0 bottom-0 w-[280px] bg-[var(--background)] shadow-2xl z-50 md:hidden flex flex-col"
+              className="fixed top-0 right-0 bottom-0 w-full max-w-[320px] bg-[var(--background)] shadow-2xl z-50 md:hidden flex flex-col"
             >
               <div className="p-5 flex items-center justify-between border-b border-[var(--border)]">
                 <span className="font-bold text-lg text-[var(--foreground)]">Menu</span>
@@ -157,7 +177,7 @@ const Header = () => {
                   {/* Social Links */}
                   <div className="flex justify-center gap-6">
                     <a
-                      href="https://github.com/zPleum"
+                      href={socialLinks.github_url}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-[var(--foreground)]/70 hover:text-[var(--primary)] transition-colors"
@@ -179,7 +199,7 @@ const Header = () => {
                       <Mail size={24} />
                     </a>
                     <a
-                      href="https://www.facebook.com/wiraphat.makwong"
+                      href={socialLinks.facebook_url}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-[var(--foreground)]/70 hover:text-[#1877F2] transition-colors"

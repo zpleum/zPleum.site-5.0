@@ -12,20 +12,18 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [theme, setTheme] = useState<Theme>("light");
+    const [theme, setTheme] = useState<Theme>("dark");
 
     useEffect(() => {
-        // Load theme from localStorage
-        const savedTheme = localStorage.getItem("theme") as Theme | null;
-        if (savedTheme) {
-            setTheme(savedTheme);
-            document.documentElement.setAttribute("data-theme", savedTheme);
-        } else {
-            // Default to light mode for first-time visitors
-            const initialTheme = "light";
-            setTheme(initialTheme);
-            document.documentElement.setAttribute("data-theme", initialTheme);
-        }
+        // This IIFE runs once on the client to set the initial theme from localStorage or default to 'dark'
+        // It prevents a flash of unstyled content by setting the attribute directly on the documentElement
+        (function () {
+            const savedTheme = localStorage.getItem('theme');
+            const initialTheme = savedTheme === 'light' || savedTheme === 'dark' ? savedTheme : 'dark';
+            document.documentElement.setAttribute('data-theme', initialTheme);
+            // Update React state after initial render
+            setTheme(initialTheme as Theme);
+        })();
     }, []);
 
     const toggleTheme = () => {

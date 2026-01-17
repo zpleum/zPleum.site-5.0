@@ -1,19 +1,26 @@
 "use client";
 
 import { Turnstile, TurnstileInstance } from '@marsidev/react-turnstile';
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 
 interface TurnstileCaptchaProps {
     onSuccess: (token: string) => void;
     onError?: () => void;
     onExpire?: () => void;
+    resetTrigger?: number;
 }
 
-export default function TurnstileCaptcha({ onSuccess, onError, onExpire }: TurnstileCaptchaProps) {
+export default function TurnstileCaptcha({ onSuccess, onError, onExpire, resetTrigger }: TurnstileCaptchaProps) {
     const turnstileRef = useRef<TurnstileInstance>(null);
 
+    // Site Key Logic: Use env variable if provided and not a placeholder, otherwise use the testing key
+    const rawSiteKey = process.env.NEXT_PUBLIC_CLOUDFLARE_SITE_KEY;
+    const siteKey = rawSiteKey && rawSiteKey !== 'your_cloudflare_turnstile_key' && !rawSiteKey.includes('your_')
+        ? rawSiteKey
+        : "0x4AAAAAACE8v7gu7uRijkjf";
+
     const handleSuccess = (token: string) => {
-        console.log('Turnstile success:', token);
+        console.log('Turnstile success:', token.substring(0, 10) + '...');
         onSuccess(token);
     };
 
@@ -31,11 +38,19 @@ export default function TurnstileCaptcha({ onSuccess, onError, onExpire }: Turns
         }
     };
 
+    // Handle manual resets from parent
+    useEffect(() => {
+        if (resetTrigger && resetTrigger > 0) {
+            console.log('Resetting Turnstile widget');
+            turnstileRef.current?.reset();
+        }
+    }, [resetTrigger]);
+
     return (
         <div className="flex justify-center my-6">
             <Turnstile
                 ref={turnstileRef}
-                siteKey="0x4AAAAAACE8v7gu7uRijkjf"
+                siteKey={siteKey}
                 onSuccess={handleSuccess}
                 onError={handleError}
                 onExpire={handleExpire}

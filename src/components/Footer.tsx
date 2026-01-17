@@ -1,10 +1,37 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Github, Linkedin, Mail, Facebook, Instagram, MessageCircle } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
 
 const Footer = () => {
+  const [socialLinks, setSocialLinks] = useState({
+    github_url: 'https://github.com/zPleum',
+    linkedin_url: 'https://linkedin.com/in/wiraphat-makwong',
+    facebook_url: 'https://www.facebook.com/wiraphat.makwong',
+    instagram_url: 'https://www.instagram.com/zpleum.tsx',
+    discord_url: 'https://discord.com/users/837918998242656267',
+    email: 'contact@zpleum.site'
+  });
+
+  useEffect(() => {
+    fetch('/api/profile')
+      .then(res => res.json())
+      .then(data => {
+        if (data.profile) {
+          setSocialLinks({
+            github_url: data.profile.github_url || 'https://github.com/zPleum',
+            linkedin_url: data.profile.linkedin_url || 'https://linkedin.com/in/wiraphat-makwong',
+            facebook_url: data.profile.facebook_url || 'https://www.facebook.com/wiraphat.makwong',
+            instagram_url: data.profile.instagram_url || 'https://www.instagram.com/zpleum.tsx',
+            discord_url: data.profile.discord_url || 'https://discord.com/users/837918998242656267',
+            email: data.profile.email || 'contact@zpleum.site'
+          });
+        }
+      })
+      .catch(err => console.error('Error fetching social links:', err));
+  }, []);
+
   return (
     <footer className="bg-[var(--background)] border-t border-[var(--border)] py-12 mt-auto">
       <div className="container mx-auto px-4">
@@ -19,7 +46,7 @@ const Footer = () => {
           <div className="flex items-center gap-6">
             {/* Social Links */}
             <a
-              href="https://github.com/zPleum"
+              href={socialLinks.github_url}
               target="_blank"
               rel="noopener noreferrer"
               className="text-[var(--foreground)]/70 hover:text-[var(--primary)] transition-colors"
@@ -28,7 +55,7 @@ const Footer = () => {
               <Github size={20} />
             </a>
             <a
-              href="https://linkedin.com/in/wiraphat-makwong"
+              href={socialLinks.linkedin_url}
               target="_blank"
               rel="noopener noreferrer"
               className="text-[var(--foreground)]/70 hover:text-[var(--primary)] transition-colors"
@@ -37,14 +64,14 @@ const Footer = () => {
               <Linkedin size={20} />
             </a>
             <a
-              href="mailto:contact@zpleum.site"
+              href={`mailto:${socialLinks.email}`}
               className="text-[var(--foreground)]/70 hover:text-[var(--primary)] transition-colors"
               aria-label="Email"
             >
               <Mail size={20} />
             </a>
             <a
-              href="https://www.facebook.com/wiraphat.makwong"
+              href={socialLinks.facebook_url}
               target="_blank"
               rel="noopener noreferrer"
               className="text-[var(--foreground)]/70 hover:text-[#1877F2] transition-colors"
@@ -53,7 +80,7 @@ const Footer = () => {
               <Facebook size={20} />
             </a>
             <a
-              href="https://www.instagram.com/zpleum.tsx"
+              href={socialLinks.instagram_url}
               target="_blank"
               rel="noopener noreferrer"
               className="text-[var(--foreground)]/70 hover:text-[#E4405F] transition-colors"
@@ -62,7 +89,7 @@ const Footer = () => {
               <Instagram size={20} />
             </a>
             <a
-              href="https://discord.com/users/837918998242656267"
+              href={socialLinks.discord_url}
               target="_blank"
               rel="noopener noreferrer"
               className="text-[var(--foreground)]/70 hover:text-[#5865F2] transition-colors"

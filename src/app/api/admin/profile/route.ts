@@ -95,7 +95,7 @@ export async function PATCH(request: NextRequest) {
                         // Check if file exists before deleting
                         await fs.access(filePath);
                         await fs.unlink(filePath);
-                    } catch (err) {
+                    } catch {
                         // File doesn't exist or couldn't be deleted, continue anyway
                     }
                 }

@@ -25,7 +25,13 @@ import {
     Globe,
     Code,
     Database,
-    ChevronDown
+    ChevronDown,
+    HardDrive,
+    ChevronUp,
+    Download,
+    ImagePlus,
+    ShieldAlert,
+    AlertTriangle
 } from 'lucide-react';
 import ImageUploadZone from '@/components/admin/ImageUploadZone';
 
@@ -54,6 +60,14 @@ export default function EditProjectPage() {
     const [uploadMode, setUploadMode] = useState<'url' | 'file'>('url');
     const [imageUrlInput, setImageUrlInput] = useState('');
     const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+    const [sessionUploads, setSessionUploads] = useState<string[]>([]);
+    const [r2Images, setR2Images] = useState<Array<{ key: string; url: string; size: number; lastModified: Date }>>([]);
+    const [loadingR2, setLoadingR2] = useState(false);
+    const [showR2Panel, setShowR2Panel] = useState(false);
+    const [deletingR2, setDeletingR2] = useState<string | null>(null);
+    const [showClearAllModal, setShowClearAllModal] = useState(false);
+    const [showDeleteR2Modal, setShowDeleteR2Modal] = useState(false);
+    const [selectedR2Image, setSelectedR2Image] = useState<string | null>(null);
 
     const [formData, setFormData] = useState({
         title: '',
@@ -66,6 +80,8 @@ export default function EditProjectPage() {
         category: 'Web App',
         featured: false,
     });
+
+    const [initialImages, setInitialImages] = useState<string[]>([]);
 
 
 
@@ -103,6 +119,7 @@ export default function EditProjectPage() {
                     parsedImages.push(project.image_url);
                 }
 
+                setInitialImages(parsedImages);
                 setFormData({
                     title: project.title || '',
                     description: project.description || '',
@@ -170,6 +187,7 @@ export default function EditProjectPage() {
                 return;
             }
 
+            setSessionUploads([]); // Prevent cleanup
             router.push('/admin/dashboard/projects');
         } catch {
             setError('An error occurred. Please try again.');
@@ -185,6 +203,10 @@ export default function EditProjectPage() {
         if (formData.images.includes(url)) return;
 
         const newImages = [...formData.images, url];
+        // Track new R2 uploads for session cleanup
+        if (url.startsWith('http')) {
+            setSessionUploads(prev => [...prev, url]);
+        }
         setFormData({
             ...formData,
             images: newImages,
@@ -194,9 +216,122 @@ export default function EditProjectPage() {
         setImageUrlInput('');
     };
 
-    const removeImage = (index: number) => {
+    const handleCancel = async () => {
+        if (sessionUploads.length > 0) {
+            setSaving(true);
+            try {
+                await Promise.all(sessionUploads.map(url =>
+                    fetch('/api/admin/projects/upload/delete', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ url })
+                    })
+                ));
+            } catch (err) {
+                console.error('Failed to cleanup session uploads:', err);
+            }
+        }
+        router.push('/admin/dashboard/projects');
+    };
+
+    const fetchR2Images = async () => {
+        setLoadingR2(true);
+        try {
+            const response = await fetch('/api/admin/projects/list-images');
+            if (response.ok) {
+                const data = await response.json();
+                setR2Images(data.images || []);
+            }
+        } catch (err) {
+            console.error('Failed to fetch R2 images:', err);
+        } finally {
+            setLoadingR2(false);
+        }
+    };
+
+    const deleteR2Image = async (url: string) => {
+        setDeletingR2(url);
+        try {
+            await fetch('/api/admin/projects/upload/delete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url })
+            });
+            await fetchR2Images();
+            setShowDeleteR2Modal(false);
+            setSelectedR2Image(null);
+        } catch (err) {
+            console.error('Failed to delete R2 image:', err);
+        } finally {
+            setDeletingR2(null);
+        }
+    };
+
+    const clearAllR2Images = async () => {
+        setLoadingR2(true);
+        try {
+            const urls = r2Images.map(img => img.url);
+            await fetch('/api/admin/profile/bulk-delete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ urls })
+            });
+            await fetchR2Images();
+            setShowClearAllModal(false);
+        } catch (err) {
+            console.error('Failed to clear R2 images:', err);
+        } finally {
+            setLoadingR2(false);
+        }
+    };
+
+    const useAsCover = (url: string) => {
+        setFormData({ ...formData, image_url: url });
+    };
+
+    const addToGallery = (url: string) => {
+        if (!formData.images.includes(url)) {
+            setFormData({ ...formData, images: [...formData.images, url] });
+        }
+    };
+
+    const downloadImage = (url: string, filename: string) => {
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    useEffect(() => {
+        if (showR2Panel) {
+            fetchR2Images();
+        }
+    }, [showR2Panel]);
+
+    const removeImage = async (index: number) => {
         const newImages = [...formData.images];
         const removedUrl = newImages[index];
+
+        // If it's a NEWLY uploaded image (R2) in this session, delete it from storage
+        // We only delete it if it's NOT in our initial images set to prevent accidental deletion if user aborts
+        if (removedUrl.startsWith('http') && !initialImages.includes(removedUrl)) {
+            try {
+                await fetch('/api/admin/projects/upload/delete', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: removedUrl })
+                });
+                // Remove from session tracking
+                setSessionUploads(prev => prev.filter(u => u !== removedUrl));
+            } catch (err) {
+                console.error('Failed to delete image from R2:', err);
+            }
+        }
+
         newImages.splice(index, 1);
 
         // If we removed the cover image, set a new one
@@ -567,6 +702,124 @@ export default function EditProjectPage() {
                             </div>
                         </div>
 
+                        {/* R2 Storage Management */}
+                        <div className="bg-[var(--card-bg)]/50 backdrop-blur-xl rounded-[2.5rem] p-8 md:p-10 border border-[var(--border)] shadow-2xl">
+                            <button
+                                type="button"
+                                onClick={() => setShowR2Panel(!showR2Panel)}
+                                className="w-full flex items-center justify-between mb-6"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="p-3 bg-orange-500/10 text-orange-500 rounded-xl">
+                                        <HardDrive size={20} />
+                                    </div>
+                                    <div className="text-left">
+                                        <h2 className="text-xl font-black uppercase tracking-tight">R2 Storage Management</h2>
+                                        <p className="text-xs text-[var(--foreground-muted)] font-medium mt-1">
+                                            Manage orphaned project images
+                                        </p>
+                                    </div>
+                                </div>
+                                {showR2Panel ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                            </button>
+
+                            <AnimatePresence>
+                                {showR2Panel && (
+                                    <motion.div
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: 'auto' }}
+                                        exit={{ opacity: 0, height: 0 }}
+                                        className="space-y-6"
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <p className="text-sm text-[var(--foreground-muted)] font-medium">
+                                                {r2Images.length} image{r2Images.length !== 1 ? 's' : ''} in storage
+                                            </p>
+                                            {r2Images.length > 0 && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowClearAllModal(true)}
+                                                    disabled={loadingR2}
+                                                    className="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-xl font-bold uppercase tracking-widest transition-all flex items-center gap-2 border border-red-500/20 hover:border-red-500/40 disabled:opacity-50 text-xs"
+                                                >
+                                                    <Trash2 size={14} />
+                                                    Clear All
+                                                </button>
+                                            )}
+                                        </div>
+
+                                        {loadingR2 ? (
+                                            <div className="flex items-center justify-center py-12">
+                                                <RefreshCw className="animate-spin text-blue-500" size={24} />
+                                            </div>
+                                        ) : r2Images.length === 0 ? (
+                                            <div className="text-center py-12 text-[var(--foreground-muted)]">
+                                                <HardDrive size={48} className="mx-auto mb-4 opacity-20" />
+                                                <p className="font-medium">No images found in R2 storage</p>
+                                            </div>
+                                        ) : (
+                                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                                                {r2Images.map((img) => (
+                                                    <div
+                                                        key={img.key}
+                                                        className="group relative aspect-square rounded-2xl overflow-hidden border border-[var(--border)] hover:border-blue-500/50 transition-all"
+                                                    >
+                                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                        <img src={img.url} alt="Project" className="w-full h-full object-cover" />
+                                                        <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 backdrop-blur-sm p-3">
+                                                            <p className="text-white text-[10px] font-bold mb-1">
+                                                                {(img.size / 1024).toFixed(1)} KB
+                                                            </p>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => useAsCover(img.url)}
+                                                                className="w-full px-2 py-1.5 bg-purple-500/20 hover:bg-purple-500/80 rounded-lg text-white text-[9px] font-black uppercase tracking-widest backdrop-blur-md flex items-center justify-center gap-1.5 transition-all"
+                                                            >
+                                                                <Star size={10} />
+                                                                Use as Cover
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => addToGallery(img.url)}
+                                                                className="w-full px-2 py-1.5 bg-blue-500/20 hover:bg-blue-500/80 rounded-lg text-white text-[9px] font-black uppercase tracking-widest backdrop-blur-md flex items-center justify-center gap-1.5 transition-all"
+                                                            >
+                                                                <ImagePlus size={10} />
+                                                                Add to Gallery
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => downloadImage(img.url, img.key.split('/').pop() || 'project.jpg')}
+                                                                className="w-full px-2 py-1.5 bg-green-500/20 hover:bg-green-500/80 rounded-lg text-white text-[9px] font-black uppercase tracking-widest backdrop-blur-md flex items-center justify-center gap-1.5 transition-all"
+                                                            >
+                                                                <Download size={10} />
+                                                                Download
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    setSelectedR2Image(img.url);
+                                                                    setShowDeleteR2Modal(true);
+                                                                }}
+                                                                disabled={deletingR2 === img.url}
+                                                                className="w-full px-2 py-1.5 bg-red-500/20 hover:bg-red-500/80 rounded-lg text-white text-[9px] font-black uppercase tracking-widest backdrop-blur-md flex items-center justify-center gap-1.5 transition-all disabled:opacity-50"
+                                                            >
+                                                                {deletingR2 === img.url ? (
+                                                                    <RefreshCw size={10} className="animate-spin" />
+                                                                ) : (
+                                                                    <Trash2 size={10} />
+                                                                )}
+                                                                Delete
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
+
                         {error && (
                             <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-6 text-red-500 text-sm font-black uppercase tracking-widest text-center">
                                 Protocol Error: {error}
@@ -591,16 +844,162 @@ export default function EditProjectPage() {
                                     </>
                                 )}
                             </button>
-                            <Link
-                                href="/admin/dashboard/projects"
-                                className="flex items-center justify-center bg-[var(--muted)]/20 hover:bg-[var(--muted)]/40 text-[var(--foreground)] font-black uppercase tracking-widest py-6 px-10 rounded-2xl transition-all border border-[var(--border)]"
+                            <button
+                                type="button"
+                                onClick={handleCancel}
+                                disabled={saving}
+                                className="flex items-center justify-center bg-[var(--muted)]/20 hover:bg-[var(--muted)]/40 text-[var(--foreground)] font-black uppercase tracking-widest py-6 px-10 rounded-2xl transition-all border border-[var(--border)] disabled:opacity-50"
                             >
-                                Abort
-                            </Link>
+                                {saving && sessionUploads.length > 0 ? (
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-5 h-5 border-2 border-[var(--foreground)] border-t-transparent rounded-full animate-spin"></div>
+                                        <span>Cleaning...</span>
+                                    </div>
+                                ) : (
+                                    "Abort"
+                                )}
+                            </button>
                         </div>
                     </form>
                 </motion.div>
             </main>
+
+            {/* Clear All R2 Images Confirmation Modal */}
+            <AnimatePresence>
+                {showClearAllModal && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center px-6">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => !loadingR2 && setShowClearAllModal(false)}
+                            className="absolute inset-0 bg-black/60 backdrop-blur-md"
+                        />
+
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            className="relative w-full max-w-lg bg-[var(--card-bg)] border border-red-500/20 rounded-[3rem] p-10 md:p-14 shadow-[0_0_50px_rgba(239,68,68,0.1)] overflow-hidden"
+                        >
+                            <div className="absolute -top-24 -right-24 w-64 h-64 bg-red-500/5 rounded-full blur-3xl animate-pulse"></div>
+
+                            <div className="relative z-10 text-center">
+                                <div className="w-24 h-24 mx-auto mb-10 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500">
+                                    <ShieldAlert size={48} />
+                                </div>
+
+                                <h2 className="text-3xl md:text-4xl font-black tracking-tighter uppercase mb-6">
+                                    CLEAR ALL IMAGES
+                                </h2>
+
+                                <p className="text-[var(--foreground-muted)] text-lg font-medium mb-12 leading-relaxed">
+                                    Are you certain you wish to permanently delete all {r2Images.length} project images from R2 storage? This action cannot be undone.
+                                </p>
+
+                                <div className="flex flex-col sm:flex-row gap-5">
+                                    <button
+                                        onClick={clearAllR2Images}
+                                        disabled={loadingR2}
+                                        className="flex-1 flex items-center justify-center gap-3 bg-red-600 hover:bg-red-500 text-white font-black uppercase tracking-widest py-6 rounded-2xl transition-all shadow-xl disabled:opacity-50"
+                                    >
+                                        {loadingR2 ? (
+                                            <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                        ) : (
+                                            <>
+                                                <Trash2 size={24} />
+                                                <span>Confirm Delete</span>
+                                            </>
+                                        )}
+                                    </button>
+                                    <button
+                                        onClick={() => setShowClearAllModal(false)}
+                                        disabled={loadingR2}
+                                        className="flex-1 bg-[var(--muted)]/20 hover:bg-[var(--muted)]/40 text-[var(--foreground)] font-black uppercase tracking-widest py-6 rounded-2xl transition-all border border-[var(--border)]"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="absolute bottom-6 right-8 opacity-10 flex items-center gap-2">
+                                <AlertTriangle size={14} />
+                                <span className="text-[10px] font-black uppercase tracking-[0.3em]">Destructive Action</span>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            {/* Delete Single R2 Image Confirmation Modal */}
+            <AnimatePresence>
+                {showDeleteR2Modal && selectedR2Image && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center px-6">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => !deletingR2 && setShowDeleteR2Modal(false)}
+                            className="absolute inset-0 bg-black/60 backdrop-blur-md"
+                        />
+
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            className="relative w-full max-w-lg bg-[var(--card-bg)] border border-red-500/20 rounded-[3rem] p-10 md:p-14 shadow-[0_0_50px_rgba(239,68,68,0.1)] overflow-hidden"
+                        >
+                            <div className="absolute -top-24 -right-24 w-64 h-64 bg-red-500/5 rounded-full blur-3xl animate-pulse"></div>
+
+                            <div className="relative z-10 text-center">
+                                <div className="w-24 h-24 mx-auto mb-10 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500">
+                                    <ShieldAlert size={48} />
+                                </div>
+
+                                <h2 className="text-3xl md:text-4xl font-black tracking-tighter uppercase mb-6">
+                                    DELETE IMAGE
+                                </h2>
+
+                                <p className="text-[var(--foreground-muted)] text-lg font-medium mb-12 leading-relaxed">
+                                    Are you certain you wish to permanently delete this image from R2 storage? This action cannot be undone.
+                                </p>
+
+                                <div className="flex flex-col sm:flex-row gap-5">
+                                    <button
+                                        onClick={() => deleteR2Image(selectedR2Image)}
+                                        disabled={deletingR2 === selectedR2Image}
+                                        className="flex-1 flex items-center justify-center gap-3 bg-red-600 hover:bg-red-500 text-white font-black uppercase tracking-widest py-6 rounded-2xl transition-all shadow-xl disabled:opacity-50"
+                                    >
+                                        {deletingR2 === selectedR2Image ? (
+                                            <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                        ) : (
+                                            <>
+                                                <Trash2 size={24} />
+                                                <span>Confirm Delete</span>
+                                            </>
+                                        )}
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            setShowDeleteR2Modal(false);
+                                            setSelectedR2Image(null);
+                                        }}
+                                        disabled={deletingR2 === selectedR2Image}
+                                        className="flex-1 bg-[var(--muted)]/20 hover:bg-[var(--muted)]/40 text-[var(--foreground)] font-black uppercase tracking-widest py-6 rounded-2xl transition-all border border-[var(--border)]"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="absolute bottom-6 right-8 opacity-10 flex items-center gap-2">
+                                <AlertTriangle size={14} />
+                                <span className="text-[10px] font-black uppercase tracking-[0.3em]">Destructive Action</span>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

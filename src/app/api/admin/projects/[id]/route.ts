@@ -3,8 +3,7 @@ import { z } from 'zod';
 import { requireAuth } from '@/lib/middleware/auth-middleware';
 import { query, queryOne } from '@/lib/db';
 import { logActivity } from '@/lib/logger';
-import fs from 'fs/promises';
-import path from 'path';
+import { deleteFromR2 } from '@/lib/s3';
 
 const updateProjectSchema = z.object({
     title: z.string().min(1).optional(),
@@ -179,6 +178,56 @@ export async function PATCH(
             console.error('Schema check error:', e);
         }
 
+        // 1. Fetch current project to comparison images
+        const currentProject = await queryOne<{ images: string | string[] | null; image_url: string | null }>(
+            'SELECT images, image_url FROM projects WHERE id = ?',
+            [id]
+        );
+
+        if (currentProject) {
+            // Handle images array comparison
+            if (data.images !== undefined) {
+                let oldImages: string[] = [];
+                try {
+                    if (currentProject.images) {
+                        oldImages = typeof currentProject.images === 'string'
+                            ? JSON.parse(currentProject.images)
+                            : currentProject.images;
+                    }
+                } catch (e) {
+                    console.error('Error parsing old images:', e);
+                }
+
+                if (Array.isArray(oldImages)) {
+                    // Find images that were in the old list but NOT in the new list
+                    const removedImages = oldImages.filter(img => !data.images?.includes(img));
+
+                    for (const imgUrl of removedImages) {
+                        if (imgUrl && imgUrl.startsWith('http')) {
+                            try {
+                                await deleteFromR2(imgUrl);
+                            } catch (e) {
+                                console.warn(`Failed to delete removed image from R2: ${imgUrl}`, e);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Handle image_url change
+            if (data.image_url !== undefined && currentProject.image_url && currentProject.image_url !== data.image_url) {
+                // Only delete if it's not being used in the new images gallery either
+                const isStillInGallery = data.images?.includes(currentProject.image_url);
+                if (!isStillInGallery && currentProject.image_url.startsWith('http')) {
+                    try {
+                        await deleteFromR2(currentProject.image_url);
+                    } catch (e) {
+                        console.warn(`Failed to delete old main image from R2: ${currentProject.image_url}`, e);
+                    }
+                }
+            }
+        }
+
         await query(
             `UPDATE projects SET ${updateFields.join(', ')} WHERE id = ?`,
             updateValues
@@ -229,17 +278,11 @@ export async function DELETE(
         }
 
         // 2. Delete main image
-        if (project.image_url) {
+        if (project.image_url && project.image_url.startsWith('http')) {
             try {
-                const filename = project.image_url.split('/').pop();
-                if (filename) {
-                    const filepath = path.join(process.cwd(), 'public', 'projects', filename);
-                    await fs.unlink(filepath).catch((err) => {
-                        console.warn(`Failed to delete main image: ${filepath}`, err);
-                    });
-                }
+                await deleteFromR2(project.image_url);
             } catch (e) {
-                console.warn('Error processing main image deletion', e);
+                console.warn(`Failed to delete main image from R2: ${project.image_url}`, e);
             }
         }
 
@@ -253,24 +296,18 @@ export async function DELETE(
 
                 if (Array.isArray(additionalImages)) {
                     for (const imgUrl of additionalImages) {
-                        if (imgUrl && imgUrl !== project.image_url) {
+                        if (imgUrl && imgUrl.startsWith('http')) {
                             try {
-                                const filename = imgUrl.split('/').pop();
-                                if (filename) {
-                                    const filepath = path.join(process.cwd(), 'public', 'projects', filename);
-                                    await fs.unlink(filepath).catch((err) => {
-                                        console.warn(`Failed to delete additional image: ${filepath}`, err);
-                                    });
-                                }
+                                await deleteFromR2(imgUrl);
                             } catch (e) {
-                                console.warn(`Error processing additional image deletion: ${imgUrl}`, e);
+                                console.warn(`Failed to delete additional image from R2: ${imgUrl}`, e);
                             }
                         }
                     }
                 }
             }
         } catch (e) {
-            console.warn('Error parsing additional images for deletion', e);
+            console.warn('Error processing additional images for deletion', e);
         }
 
         // 4. Delete from Database

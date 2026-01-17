@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/middleware/auth-middleware';
 import { query } from '@/lib/db';
 import { logActivity } from '@/lib/logger';
+import { deleteFromR2 } from '@/lib/s3';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -87,16 +88,25 @@ export async function PATCH(request: NextRequest) {
             if (currentProfile.length > 0) {
                 const oldImageUrl = currentProfile[0].profile_image_url;
 
-                // Only delete if it's an uploaded file (starts with /uploads/ or /profile/)
-                if (oldImageUrl && (oldImageUrl.startsWith('/uploads/') || oldImageUrl.startsWith('/profile/'))) {
-                    try {
-                        const filePath = path.join(process.cwd(), 'public', oldImageUrl);
-
-                        // Check if file exists before deleting
-                        await fs.access(filePath);
-                        await fs.unlink(filePath);
-                    } catch {
-                        // File doesn't exist or couldn't be deleted, continue anyway
+                // Only delete if the image URL has actually changed and it's not the same as the current one
+                if (oldImageUrl && oldImageUrl !== profile_image_url) {
+                    // Delete from R2 if it's an R2 URL (starts with http)
+                    if (oldImageUrl.startsWith('http')) {
+                        try {
+                            await deleteFromR2(oldImageUrl);
+                        } catch (err) {
+                            console.error('Failed to delete old profile image from R2:', err);
+                        }
+                    }
+                    // Handle legacy local files
+                    else if (oldImageUrl.startsWith('/uploads/') || oldImageUrl.startsWith('/profile/')) {
+                        try {
+                            const filePath = path.join(process.cwd(), 'public', oldImageUrl);
+                            await fs.access(filePath);
+                            await fs.unlink(filePath);
+                        } catch {
+                            // File doesn't exist or couldn't be deleted, continue anyway
+                        }
                     }
                 }
             }

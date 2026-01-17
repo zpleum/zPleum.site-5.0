@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/middleware/auth-middleware';
-import { writeFile, mkdir } from 'fs/promises';
+import { uploadToR2 } from '@/lib/s3';
 import path from 'path';
-import { existsSync } from 'fs';
 
 export async function POST(request: NextRequest) {
     const authResult = await requireAuth(request);
@@ -29,26 +28,19 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Create profile directory if it doesn't exist
-        const profileDir = path.join(process.cwd(), 'public', 'profile');
-        if (!existsSync(profileDir)) {
-            await mkdir(profileDir, { recursive: true });
-        }
+        // Convert file to buffer and save
+        const bytes = await file.arrayBuffer();
+        const buffer = Buffer.from(bytes);
 
         // Generate unique filename
         const timestamp = Date.now();
         const extension = file.name.split('.').pop();
-        const filename = `profile-${timestamp}.${extension}`;
-        const filepath = path.join(profileDir, filename);
+        const filename = `profile/profile-${timestamp}.${extension}`;
 
-        // Convert file to buffer and save
-        const bytes = await file.arrayBuffer();
-        const buffer = Buffer.from(bytes);
-        await writeFile(filepath, buffer);
+        // Upload to Cloudflare R2
+        const r2Url = await uploadToR2(buffer, filename, file.type);
 
-        // Return the URL
-        const url = `/profile/${filename}`;
-        return NextResponse.json({ url });
+        return NextResponse.json({ url: r2Url });
 
     } catch (error) {
         console.error('Upload error:', error);

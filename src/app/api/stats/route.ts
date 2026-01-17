@@ -17,7 +17,7 @@ export async function GET() {
         );
 
         return NextResponse.json({ stats });
-    } catch (error: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
+    } catch (error: unknown) {
         console.error('Error fetching stats:', error);
         return NextResponse.json(
             { error: 'Failed to fetch stats' },

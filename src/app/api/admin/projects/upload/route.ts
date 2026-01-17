@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/middleware/auth-middleware';
-import fs from 'fs/promises';
+import { uploadToR2 } from '@/lib/s3';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -21,18 +21,14 @@ export async function POST(request: NextRequest) {
 
         const buffer = Buffer.from(await file.arrayBuffer());
         const ext = path.extname(file.name) || '.png';
-        const filename = `${uuidv4()}${ext}`;
-        const relativePath = `/projects/${filename}`;
-        const absolutePath = path.join(process.cwd(), 'public', 'projects', filename);
+        const filename = `projects/${uuidv4()}${ext}`;
 
-        // Ensure directory exists
-        await fs.mkdir(path.dirname(absolutePath), { recursive: true });
-
-        await fs.writeFile(absolutePath, buffer);
+        // Upload to Cloudflare R2
+        const r2Url = await uploadToR2(buffer, filename, file.type);
 
         return NextResponse.json({
             success: true,
-            url: relativePath
+            url: r2Url
         });
     } catch (error: unknown) {
         const err = error as { message?: string };

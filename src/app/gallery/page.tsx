@@ -13,6 +13,14 @@ type GalleryImage = {
     category: string;
 };
 
+interface Project {
+    id: string;
+    title: string;
+    image_url?: string | null;
+    category?: string;
+    images?: string[] | null;
+}
+
 export default function Gallery() {
     const [images, setImages] = useState<GalleryImage[]>([]);
     const [loading, setLoading] = useState(true);
@@ -36,7 +44,7 @@ export default function Gallery() {
             // 1. Process Project Data
             if (projectsRes.ok) {
                 const data = await projectsRes.json();
-                projectImages = (data.projects || []).flatMap((p: any) => {
+                projectImages = (data.projects || []).flatMap((p: Project) => {
                     const allImages = [];
 
                     // Add main image

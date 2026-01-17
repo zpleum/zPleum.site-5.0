@@ -5,10 +5,8 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
     ArrowLeft,
-    Search,
     Globe,
     Share2,
-    Save,
     RefreshCw,
     CheckCircle2,
     Settings2,
@@ -25,7 +23,6 @@ export default function SEOProtocolsPage() {
     const [keywords, setKeywords] = useState('');
     const [ogImage, setOgImage] = useState('');
 
-    const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
     useEffect(() => {
@@ -50,12 +47,11 @@ export default function SEOProtocolsPage() {
 
     const handleSave = async () => {
         if (!siteTitle.trim()) {
-            setError('Site Title is required for search visibility');
+            console.error('Site Title is required for search visibility');
             return;
         }
 
         setSaving(true);
-        setError('');
         setSuccess('');
 
         try {
@@ -74,11 +70,10 @@ export default function SEOProtocolsPage() {
                 setSuccess('SEO Protocol definitions updated successfully');
                 setTimeout(() => setSuccess(''), 3000);
             } else {
-                const data = await response.json();
-                setError(data.error || 'Failed to update SEO configuration');
+                console.error('Failed to update SEO configuration');
             }
-        } catch (error) {
-            setError('Error updating SEO configuration');
+        } catch {
+            console.error('Error updating SEO configuration');
         } finally {
             setSaving(false);
         }

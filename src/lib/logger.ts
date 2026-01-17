@@ -26,6 +26,7 @@ export type ActivityAction =
     | 'UPDATE_PROFILE'
     | 'UPDATE_CONTACT_INFO'
     | 'UPDATE_ADMIN'
+    | 'REVOKE_ADMIN'
     | 'TOGGLE_2FA'
     | 'SYSTEM_ERROR';
 
@@ -36,7 +37,7 @@ export async function logActivity(
     request: NextRequest | null,
     adminId: string | null,
     action: ActivityAction,
-    details?: any
+    details?: unknown
 ) {
     try {
         const id = uuidv4();
@@ -54,7 +55,7 @@ export async function logActivity(
 /**
  * Record a system error
  */
-export async function logSystemError(error: any, context?: string) {
+export async function logSystemError(error: any, context?: string) { // eslint-disable-line @typescript-eslint/no-explicit-any
     try {
         const id = uuidv4();
         await query(

@@ -43,14 +43,15 @@ export async function POST(request: NextRequest) {
             [id, validation.data.name]
         );
 
-        await logActivity(request, (authResult as { admin: any }).admin.id, 'CREATE_CATEGORY', { name: validation.data.name });
+        await logActivity(request, authResult.admin.id.toString(), 'CREATE_CATEGORY', { name: validation.data.name });
 
         return NextResponse.json(
             { success: true, message: 'Category created', id },
             { status: 201 }
         );
-    } catch (error: any) {
-        if (error.code === 'ER_DUP_ENTRY') {
+    } catch (error: unknown) {
+        const dbError = error as { code?: string };
+        if (dbError.code === 'ER_DUP_ENTRY') {
             return NextResponse.json({ error: 'Category already exists' }, { status: 409 });
         }
         console.error('Create category error:', error);

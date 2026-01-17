@@ -50,7 +50,7 @@ export default function AdminLoginPage() {
 
             // Success - redirect to dashboard
             router.push('/admin/dashboard');
-        } catch (err) {
+        } catch {
             setError('An error occurred. Please try again.');
             setLoading(false);
         }

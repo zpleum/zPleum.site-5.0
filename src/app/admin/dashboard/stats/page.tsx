@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { motion, AnimatePresence, Reorder, useDragControls } from 'framer-motion';
 import {
     ArrowLeft,
-    Plus,
     Briefcase,
     Code,
     Heart,
@@ -20,7 +19,6 @@ import {
     ShieldAlert,
     AlertTriangle,
     GripVertical,
-    BarChart3,
     ChevronDown
 } from 'lucide-react';
 
@@ -33,7 +31,7 @@ const iconOptions = [
     { name: 'Sparkles', component: Sparkles }
 ];
 
-const iconMap: Record<string, any> = {
+const iconMap: Record<string, React.ComponentType<any>> = { // eslint-disable-line @typescript-eslint/no-explicit-any
     Briefcase,
     Code,
     Heart,
@@ -162,7 +160,7 @@ export default function StatsPage() {
                 const data = await response.json();
                 setError(data.error || 'Failed to add stat');
             }
-        } catch (error) {
+        } catch {
             setError('Error adding stat');
         }
     };
@@ -191,7 +189,7 @@ export default function StatsPage() {
                 const data = await response.json();
                 setError(data.error || 'Failed to update stat');
             }
-        } catch (error) {
+        } catch {
             setError('Error updating stat');
         }
     };
@@ -214,7 +212,7 @@ export default function StatsPage() {
             } else {
                 setError('Failed to delete stat');
             }
-        } catch (error) {
+        } catch {
             setError('Error deleting stat');
         } finally {
             setIsDeleting(false);
@@ -524,7 +522,7 @@ const StatItem = memo(function StatItemComponent({
     setShowEditIconDropdown,
     showEditColorDropdown,
     setShowEditColorDropdown
-}: any) {
+}: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
     const dragControls = useDragControls();
     const IconComponent = iconMap[stat.icon] || Briefcase;
 

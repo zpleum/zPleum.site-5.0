@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useCallback } from 'react';
-import { Upload, Plus, Loader2, Cloud, ImageIcon, Link } from 'lucide-react';
+import { useState } from 'react';
+import { Upload, Plus, Loader2, Link } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface ImageUploadZoneProps {
@@ -41,9 +41,10 @@ export default function ImageUploadZone({ onUploadComplete, compact = false, cla
 
             const data = await response.json();
             onUploadComplete(data.url);
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error(err);
-            setError(err.message || 'Upload failed');
+            const errorMessage = err instanceof Error ? err.message : 'Upload failed';
+            setError(errorMessage);
         } finally {
             setUploading(false);
             setIsDragging(false);
@@ -93,7 +94,7 @@ export default function ImageUploadZone({ onUploadComplete, compact = false, cla
             new URL(urlInput);
             onUploadComplete(urlInput.trim());
             setUrlInput('');
-        } catch (err) {
+        } catch {
             setError('Invalid URL format');
         }
     };

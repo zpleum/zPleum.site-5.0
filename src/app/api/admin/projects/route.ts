@@ -25,7 +25,26 @@ export async function GET(request: NextRequest) {
     }
 
     try {
-        const projects = await query<any[]>(
+        interface ProjectWithAdmins {
+            id: string;
+            title: string;
+            description: string | null;
+            image_url: string | null;
+            images: string | null; // JSON string
+            project_url: string | null;
+            github_url: string | null;
+            technologies: string | null; // JSON string
+            category: string;
+            featured: number | boolean;
+            created_by: string;
+            updated_by: string;
+            created_at: Date | string;
+            updated_at: Date | string;
+            created_by_email: string | null;
+            updated_by_email: string | null;
+        }
+
+        const projects = await query<ProjectWithAdmins[]>(
             `SELECT p.*, 
               c.email as created_by_email,
               u.email as updated_by_email
@@ -73,7 +92,15 @@ export async function POST(request: NextRequest) {
         let hasCategoryColumn = false;
         let hasImagesColumn = false;
         try {
-            const columns = await query<any[]>('DESCRIBE projects');
+            interface ColumnDescriptor {
+                Field: string;
+                Type: string;
+                Null: string;
+                Key: string;
+                Default: string | null;
+                Extra: string;
+            }
+            const columns = await query<ColumnDescriptor[]>('DESCRIBE projects');
             hasCategoryColumn = columns.some(col => col.Field === 'category');
             hasImagesColumn = columns.some(col => col.Field === 'images');
 
@@ -127,7 +154,7 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        await logActivity(request, admin.id, 'CREATE_PROJECT', {
+        await logActivity(request, String(admin.id), 'CREATE_PROJECT', {
             id: projectId,
             title: data.title
         });
@@ -140,13 +167,14 @@ export async function POST(request: NextRequest) {
             },
             { status: 201 }
         );
-    } catch (error: any) {
+    } catch (error: unknown) {
+        const err = error as { message?: string; sql?: string };
         console.error('Create project error:', error);
         return NextResponse.json(
             {
                 error: 'Failed to create project',
-                message: error.message,
-                sql: error.sql
+                message: err.message,
+                sql: err.sql
             },
             { status: 500 }
         );

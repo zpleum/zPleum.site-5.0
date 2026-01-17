@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { ArrowRight, Github, ExternalLink, Sparkles } from "lucide-react";
+import { ArrowRight, Github, ExternalLink } from "lucide-react";
 import { useState, useEffect } from "react";
 
 type Project = {
@@ -37,8 +37,8 @@ export default function ProjectShowcase() {
         const data = await response.json();
         setProjects(data.projects || []);
       }
-    } catch (error) {
-      console.error('Error fetching featured projects:', error);
+    } catch {
+      console.error('Error fetching featured projects');
     } finally {
       setLoading(false);
     }

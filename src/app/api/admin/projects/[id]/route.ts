@@ -31,7 +31,26 @@ export async function GET(
     const { id } = await params;
 
     try {
-        const project = await queryOne<any>(
+        interface ProjectWithAdmins {
+            id: string;
+            title: string;
+            description: string | null;
+            image_url: string | null;
+            images: string | string[] | null;
+            project_url: string | null;
+            github_url: string | null;
+            technologies: string | string[] | null;
+            category: string;
+            featured: number | boolean;
+            created_by: string;
+            updated_by: string;
+            created_at: Date | string;
+            updated_at: Date | string;
+            created_by_email: string | null;
+            updated_by_email: string | null;
+        }
+
+        const project = await queryOne<ProjectWithAdmins>(
             `SELECT p.*, 
               c.email as created_by_email,
               u.email as updated_by_email
@@ -85,7 +104,7 @@ export async function PATCH(
 
         const data = validation.data;
         const updateFields: string[] = [];
-        const updateValues: any[] = [];
+        const updateValues: unknown[] = [];
 
         // Ensure image_url is set if we have new images but no primary image
         // This is a naive heuristic; normally client guarantees consistency
@@ -143,7 +162,15 @@ export async function PATCH(
 
         // Auto-migration: Check if category column exists and add it if missing
         try {
-            const columns = await query<any[]>('DESCRIBE projects');
+            interface ColumnDescriptor {
+                Field: string;
+                Type: string;
+                Null: string;
+                Key: string;
+                Default: string | null;
+                Extra: string;
+            }
+            const columns = await query<ColumnDescriptor[]>('DESCRIBE projects');
             const hasCategoryColumn = columns.some(col => col.Field === 'category');
             if (!hasCategoryColumn) {
                 await query("ALTER TABLE projects ADD COLUMN category VARCHAR(50) DEFAULT 'Web App' AFTER technologies");
@@ -157,7 +184,7 @@ export async function PATCH(
             updateValues
         );
 
-        await logActivity(request, admin.id, 'UPDATE_PROJECT', {
+        await logActivity(request, String(admin.id), 'UPDATE_PROJECT', {
             id,
             title: data.title
         });
@@ -188,8 +215,14 @@ export async function DELETE(
     const { id } = await params;
 
     try {
+        interface ProjectRow {
+            id: string;
+            image_url: string | null;
+            images: string | string[] | null;
+        }
+
         // 1. Fetch project to get image paths
-        const project = await queryOne<any>('SELECT * FROM projects WHERE id = ?', [id]);
+        const project = await queryOne<ProjectRow>('SELECT id, image_url, images FROM projects WHERE id = ?', [id]);
 
         if (!project) {
             return NextResponse.json({ error: 'Project not found' }, { status: 404 });
@@ -243,7 +276,7 @@ export async function DELETE(
         // 4. Delete from Database
         await query('DELETE FROM projects WHERE id = ?', [id]);
 
-        await logActivity(request, authResult.admin.id, 'DELETE_PROJECT', { id });
+        await logActivity(request, String(authResult.admin.id), 'DELETE_PROJECT', { id });
 
         return NextResponse.json({
             success: true,

@@ -31,7 +31,7 @@ export async function PATCH(
             [name, skillId]
         );
 
-        await logActivity(request, admin.id, 'UPDATE_SKILL', { id: skillId, name });
+        await logActivity(request, String(admin.id), 'UPDATE_SKILL', { id: skillId, name });
 
         return NextResponse.json({ success: true });
     } catch (error) {
@@ -58,7 +58,7 @@ export async function DELETE(
     try {
         await query('DELETE FROM skills WHERE id = ?', [skillId]);
 
-        await logActivity(request, admin.id, 'DELETE_SKILL', { id: skillId });
+        await logActivity(request, String(admin.id), 'DELETE_SKILL', { id: skillId });
 
         return NextResponse.json({ success: true });
     } catch (error) {

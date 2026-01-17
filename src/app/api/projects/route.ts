@@ -11,14 +11,22 @@ export async function GET(request: NextRequest) {
         // Check columns first to be safe
         let hasCategoryColumn = false;
         try {
-            const columns = await query<any[]>('DESCRIBE projects');
+            interface ColumnDescriptor {
+                Field: string;
+                Type: string;
+                Null: string;
+                Key: string;
+                Default: string | null;
+                Extra: string;
+            }
+            const columns = await query<ColumnDescriptor[]>('DESCRIBE projects');
             hasCategoryColumn = columns.some(col => col.Field === 'category');
         } catch (e) {
             console.error('Error checking projects table schema:', e);
         }
 
         let sql = 'SELECT * FROM projects WHERE 1=1';
-        const params: any[] = [];
+        const params: (string | number)[] = [];
 
         if (featured === 'true') {
             sql += ' AND featured = ?';
@@ -32,9 +40,21 @@ export async function GET(request: NextRequest) {
 
         sql += ' ORDER BY featured DESC, created_at DESC';
 
-        console.log('Fetching projects with SQL:', sql, 'params:', params);
-        const projects = await query<any[]>(sql, params);
-        console.log('Raw projects found in DB:', projects.length);
+        interface ProjectRow {
+            id: string | number;
+            title: string;
+            description: string;
+            image_url: string;
+            github_url?: string;
+            live_url?: string;
+            technologies: string | string[];
+            images?: string | string[];
+            featured: number | boolean;
+            category?: string;
+            created_at: string | Date;
+        }
+
+        const projects = await query<ProjectRow[]>(sql, params);
 
         // Parse technologies JSON and handle potential string/object differences
         const formattedProjects = projects.map(project => {
@@ -71,14 +91,15 @@ export async function GET(request: NextRequest) {
         });
 
         return NextResponse.json({ projects: formattedProjects });
-    } catch (error: any) {
+    } catch (error) {
+        const err = error as { message?: string; sqlState?: string; code?: string };
         console.error('SERVER ERROR in /api/projects:', error);
         return NextResponse.json(
             {
                 error: 'Failed to fetch projects',
-                message: error.message,
-                sqlState: error.sqlState,
-                code: error.code
+                message: err.message,
+                sqlState: err.sqlState,
+                code: err.code
             },
             { status: 500 }
         );

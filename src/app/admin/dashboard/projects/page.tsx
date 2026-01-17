@@ -13,10 +13,7 @@ import {
     Edit3,
     Trash2,
     Star,
-    Search,
-    Filter,
     AlertTriangle,
-    X,
     ShieldAlert
 } from 'lucide-react';
 
@@ -54,8 +51,8 @@ export default function ProjectsPage() {
                 const data = await response.json();
                 setProjects(data.projects || []);
             }
-        } catch (error) {
-            console.error('Error fetching projects:', error);
+        } catch {
+            console.error('Error fetching projects');
         } finally {
             setLoading(false);
         }
@@ -76,8 +73,8 @@ export default function ProjectsPage() {
             } else {
                 alert('Failed to delete project');
             }
-        } catch (error) {
-            console.error('Error deleting project:', error);
+        } catch {
+            console.error('Error deleting project');
             alert('Error deleting project');
         } finally {
             setIsDeleting(false);
@@ -182,7 +179,7 @@ export default function ProjectsPage() {
                                             try {
                                                 if (Array.isArray(project.images)) count = project.images.length;
                                                 else if (typeof project.images === 'string') count = JSON.parse(project.images).length;
-                                            } catch (e) { }
+                                            } catch { }
 
                                             if (count > 1) {
                                                 return (

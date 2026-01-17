@@ -4,20 +4,36 @@ import { query } from '@/lib/db';
 import { logActivity } from '@/lib/logger';
 import { v4 as uuidv4 } from 'uuid';
 
-export async function GET(request: NextRequest) {
-    const authResult = await requireAuth(request);
+export async function GET(_request: NextRequest) {
+    const authResult = await requireAuth(_request);
     if (authResult instanceof NextResponse) {
         return authResult;
     }
 
     try {
-        const categories = await query<any[]>(
+        interface SkillCategory {
+            id: string;
+            title: string;
+            icon: string;
+            color: string;
+            display_order: number;
+        }
+
+        const categories = await query<SkillCategory[]>(
             `SELECT * FROM skill_categories ORDER BY display_order ASC`
         );
 
         const categoriesWithSkills = await Promise.all(
             categories.map(async (category) => {
-                const skills = await query<any[]>(
+                interface Skill {
+                    id: string;
+                    category_id: string;
+                    name: string;
+                    proficiency: number;
+                    display_order: number;
+                }
+
+                const skills = await query<Skill[]>(
                     `SELECT * FROM skills WHERE category_id = ? ORDER BY display_order ASC`,
                     [category.id]
                 );
@@ -60,8 +76,12 @@ export async function POST(request: NextRequest) {
 
         const id = uuidv4();
 
+        interface MaxOrderResult {
+            max_order: number | null;
+        }
+
         // Get max display_order
-        const maxOrder = await query<any[]>(
+        const maxOrder = await query<MaxOrderResult[]>(
             `SELECT MAX(display_order) as max_order FROM skill_categories`
         );
         const displayOrder = (maxOrder[0]?.max_order ?? -1) + 1;
@@ -71,7 +91,7 @@ export async function POST(request: NextRequest) {
             [id, title, icon, color, displayOrder]
         );
 
-        await logActivity(request, admin.id, 'CREATE_SKILL_CATEGORY', { id, title });
+        await logActivity(request, String(admin.id), 'CREATE_SKILL_CATEGORY', { id, title });
 
         return NextResponse.json({ success: true, id });
     } catch (error) {

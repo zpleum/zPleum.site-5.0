@@ -25,8 +25,12 @@ export async function GET(request: NextRequest) {
             LIMIT ? OFFSET ?
         `, [limit, offset]);
 
-        const totalResult = await query('SELECT COUNT(*) as count FROM activity_logs');
-        const total = (totalResult as any)[0].count;
+        interface CountResult {
+            count: number;
+        }
+
+        const totalResult = await query<CountResult[]>('SELECT COUNT(*) as count FROM activity_logs');
+        const total = totalResult[0].count;
 
         return NextResponse.json({
             logs,

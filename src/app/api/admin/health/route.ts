@@ -3,8 +3,8 @@ import { requireAuth } from '@/lib/middleware/auth-middleware';
 import { testConnection } from '@/lib/db';
 import os from 'os';
 
-export async function GET(request: NextRequest) {
-    const authResult = await requireAuth(request);
+export async function GET(_request: NextRequest) {
+    const authResult = await requireAuth(_request);
 
     if (authResult instanceof NextResponse) {
         return authResult;

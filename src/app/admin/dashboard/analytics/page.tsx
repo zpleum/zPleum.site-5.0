@@ -8,10 +8,8 @@ import {
     TrendingUp,
     Users,
     MousePointer2,
-    Calendar,
     RefreshCw,
     Globe,
-    FileText,
     BarChart3,
     Trophy
 } from 'lucide-react';
@@ -44,9 +42,30 @@ ChartJS.register(
     Filler
 );
 
+interface AnalyticsSummary {
+    summary: {
+        total: {
+            total_views: number;
+            unique_visitors: number;
+        };
+        today: {
+            total_views: number;
+            unique_visitors: number;
+        };
+    };
+    categoryDist: {
+        category: string;
+        count: number;
+    }[];
+    topPages: {
+        path: string;
+        views: number;
+    }[];
+}
+
 export default function AnalyticsPage() {
-    const [summary, setSummary] = useState<any>(null);
-    const [traffic, setTraffic] = useState<any[]>([]);
+    const [summary, setSummary] = useState<AnalyticsSummary | null>(null);
+    const [traffic, setTraffic] = useState<{ date: string; views: number; visitors: number }[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -101,9 +120,9 @@ export default function AnalyticsPage() {
     };
 
     const donutChartData = {
-        labels: summary?.categoryDist.map((c: any) => c.category) || [],
+        labels: summary?.categoryDist.map(c => c.category) || [],
         datasets: [{
-            data: summary?.categoryDist.map((c: any) => c.count) || [],
+            data: summary?.categoryDist.map(c => c.count) || [],
             backgroundColor: [
                 '#3b82f6', '#a855f7', '#ec4899', '#f59e0b', '#10b981', '#64748b'
             ],
@@ -122,7 +141,7 @@ export default function AnalyticsPage() {
             tooltip: {
                 backgroundColor: 'rgba(0, 0, 0, 0.8)',
                 padding: 12,
-                titleFont: { size: 14, weight: 'bold' },
+                titleFont: { size: 14, weight: 'bold' as const },
                 bodyFont: { size: 12 },
                 cornerRadius: 12,
             }
@@ -270,7 +289,7 @@ export default function AnalyticsPage() {
                                         <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
                                     </div>
                                 ) : (
-                                    <Line data={lineChartData} options={chartOptions as any} />
+                                    <Line data={lineChartData} options={chartOptions} />
                                 )}
                             </div>
                         </div>
@@ -293,7 +312,7 @@ export default function AnalyticsPage() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {summary?.topPages.map((page: any, i: number) => (
+                                        {summary?.topPages.map((page, i) => (
                                             <tr key={i} className="border-b border-[var(--border)]/30 hover:bg-blue-500/5 transition-colors group">
                                                 <td className="px-8 py-4">
                                                     <div className="flex items-center gap-3">
@@ -317,14 +336,14 @@ export default function AnalyticsPage() {
                         <div className="bg-[var(--card-bg)]/40 backdrop-blur-xl border border-[var(--border)] p-8 rounded-[2.5rem] shadow-2xl flex flex-col items-center">
                             <h3 className="text-lg font-black uppercase tracking-tighter mb-8 w-full">Category Weight</h3>
                             <div className="relative w-48 h-48 mb-8">
-                                <Doughnut data={donutChartData} options={{ ...chartOptions, cutout: '75%' } as any} />
+                                <Doughnut data={donutChartData} options={{ ...chartOptions, cutout: '75%' }} />
                                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                                     <span className="text-2xl font-black tracking-tighter">{summary?.categoryDist.length || 0}</span>
                                     <span className="text-sm font-black uppercase tracking-widest opacity-30">Domains</span>
                                 </div>
                             </div>
                             <div className="w-full space-y-3">
-                                {summary?.categoryDist.map((c: any, i: number) => (
+                                {summary?.categoryDist.map((c, i) => (
                                     <div key={i} className="flex justify-between items-center bg-[var(--background)]/30 p-3 rounded-xl border border-[var(--border)]/50">
                                         <div className="flex items-center gap-3">
                                             <div className="w-2 h-2 rounded-full" style={{ backgroundColor: donutChartData.datasets[0].backgroundColor[i] }}></div>

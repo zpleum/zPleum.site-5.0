@@ -6,7 +6,6 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 export async function POST(request: Request) {
   try {
     const { name, email, subject, message, captchaToken } = await request.json();
-    console.log('Received contact request. Captcha token present:', !!captchaToken);
 
     // Validate input
     if (!name || !email || !subject || !message) {
@@ -139,8 +138,6 @@ export async function POST(request: Request) {
         `,
 
       });
-
-      console.log('Email sent successfully:', data);
 
       return NextResponse.json({
         success: true,

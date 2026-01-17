@@ -36,7 +36,7 @@ export function verifyAccessToken(token: string): TokenPayload | null {
     try {
         const decoded = jwt.verify(token, ACCESS_TOKEN_SECRET) as TokenPayload;
         return decoded;
-    } catch (error) {
+    } catch {
         return null;
     }
 }
@@ -48,7 +48,7 @@ export function verifyRefreshToken(token: string): TokenPayload | null {
     try {
         const decoded = jwt.verify(token, REFRESH_TOKEN_SECRET) as TokenPayload;
         return decoded;
-    } catch (error) {
+    } catch {
         return null;
     }
 }

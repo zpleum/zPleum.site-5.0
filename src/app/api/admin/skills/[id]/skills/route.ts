@@ -29,8 +29,12 @@ export async function POST(
 
         const id = uuidv4();
 
+        interface MaxOrderResult {
+            max_order: number | null;
+        }
+
         // Get max display_order for this category
-        const maxOrder = await query<any[]>(
+        const maxOrder = await query<MaxOrderResult[]>(
             `SELECT MAX(display_order) as max_order FROM skills WHERE category_id = ?`,
             [categoryId]
         );
@@ -41,7 +45,7 @@ export async function POST(
             [id, categoryId, name, displayOrder]
         );
 
-        await logActivity(request, admin.id, 'CREATE_SKILL', { id, categoryId, name });
+        await logActivity(request, String(admin.id), 'CREATE_SKILL', { id, categoryId, name });
 
         return NextResponse.json({ success: true, id });
     } catch (error) {

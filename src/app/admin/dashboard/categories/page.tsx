@@ -9,10 +9,8 @@ import {
     FolderGit2,
     Edit3,
     Trash2,
-    CheckCircle2,
     X,
     Save,
-    Search,
     RefreshCw,
     ShieldAlert,
     AlertTriangle,
@@ -29,7 +27,6 @@ export default function CategoriesPage() {
     const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(true);
     const [newName, setNewName] = useState('');
-    const [isAdding, setIsAdding] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [editingName, setEditingName] = useState('');
     const [error, setError] = useState('');
@@ -50,8 +47,8 @@ export default function CategoriesPage() {
                 const data = await response.json();
                 setCategories(data.categories || []);
             }
-        } catch (error) {
-            console.error('Error fetching categories:', error);
+        } catch {
+            console.error('Error fetching categories');
         } finally {
             setLoading(false);
         }
@@ -79,7 +76,7 @@ export default function CategoriesPage() {
                 const data = await response.json();
                 setError(data.error || 'Failed to add category');
             }
-        } catch (error) {
+        } catch {
             setError('Error adding category');
         }
     };
@@ -104,7 +101,7 @@ export default function CategoriesPage() {
                 const data = await response.json();
                 setError(data.error || 'Failed to update category');
             }
-        } catch (error) {
+        } catch {
             setError('Error updating category');
         }
     };
@@ -131,7 +128,7 @@ export default function CategoriesPage() {
             } else {
                 setError('Failed to delete category');
             }
-        } catch (error) {
+        } catch {
             setError('Error deleting category');
         } finally {
             setIsDeleting(false);
@@ -159,8 +156,8 @@ export default function CategoriesPage() {
                     body: JSON.stringify({ ids: categories.map(c => c.id) }),
                 });
                 setHasChanged(false); // Reset change tracker after sync
-            } catch (error) {
-                console.error('Failed to sync reorder:', error);
+            } catch {
+                console.error('Failed to sync reorder');
             } finally {
                 setIsSyncing(false);
             }
@@ -332,7 +329,25 @@ export default function CategoriesPage() {
 }
 
 // Extracted for performance: Only re-renders moving item
-const CategoryItem = memo(function CategoryItemComponent({ cat, editingId, editingName, setEditingName, setEditingId, handleUpdate, handleDelete }: any) {
+interface CategoryItemProps {
+    cat: Category;
+    editingId: string | null;
+    editingName: string;
+    setEditingName: (name: string) => void;
+    setEditingId: (id: string | null) => void;
+    handleUpdate: (id: string) => void;
+    handleDelete: (id: string) => void;
+}
+
+const CategoryItem = memo(function CategoryItemComponent({
+    cat,
+    editingId,
+    editingName,
+    setEditingName,
+    setEditingId,
+    handleUpdate,
+    handleDelete
+}: CategoryItemProps) {
     const dragControls = useDragControls();
 
     return (

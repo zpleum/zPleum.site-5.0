@@ -47,7 +47,7 @@ export default function AdminRegisterPage() {
             setTimeout(() => {
                 router.push('/admin/login');
             }, 2000);
-        } catch (err) {
+        } catch {
             setError('An error occurred. Please try again.');
             setLoading(false);
         }

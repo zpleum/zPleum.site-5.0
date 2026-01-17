@@ -27,7 +27,14 @@ import { query } from "@/lib/db";
 
 export async function generateMetadata(): Promise<Metadata> {
   try {
-    const seoSettings = await query<any[]>(
+    interface SeoSettings {
+      site_title: string;
+      site_description: string;
+      keywords: string;
+      og_image: string | null;
+    }
+
+    const seoSettings = await query<SeoSettings[]>(
       'SELECT site_title, site_description, keywords, og_image FROM seo_settings WHERE id = 1'
     );
 

@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { motion, AnimatePresence, Reorder, useDragControls } from 'framer-motion';
 import {
     ArrowLeft,
-    Plus,
     Edit3,
     Trash2,
     Save,
@@ -14,7 +13,6 @@ import {
     ShieldAlert,
     AlertTriangle,
     GripVertical,
-    Calendar,
     AlignLeft,
     AlignRight
 } from 'lucide-react';
@@ -100,7 +98,7 @@ export default function JourneyPage() {
                 const data = await response.json();
                 setError(data.error || 'Failed to add milestone');
             }
-        } catch (error) {
+        } catch {
             setError('Error adding milestone');
         }
     };
@@ -129,7 +127,7 @@ export default function JourneyPage() {
                 const data = await response.json();
                 setError(data.error || 'Failed to update milestone');
             }
-        } catch (error) {
+        } catch {
             setError('Error updating milestone');
         }
     };
@@ -152,7 +150,7 @@ export default function JourneyPage() {
             } else {
                 setError('Failed to delete milestone');
             }
-        } catch (error) {
+        } catch {
             setError('Error deleting milestone');
         } finally {
             setIsDeleting(false);
@@ -379,6 +377,16 @@ export default function JourneyPage() {
 }
 
 // Milestone Item Component
+interface MilestoneItemProps {
+    milestone: Milestone;
+    editingId: string | null;
+    editingData: { year: string; title: string; description: string; align: string };
+    setEditingData: (data: { year: string; title: string; description: string; align: string }) => void;
+    setEditingId: (id: string | null) => void;
+    handleUpdate: (id: string) => void;
+    setDeleteId: (id: string | null) => void;
+}
+
 const MilestoneItem = memo(function MilestoneItemComponent({
     milestone,
     editingId,
@@ -387,7 +395,7 @@ const MilestoneItem = memo(function MilestoneItemComponent({
     setEditingId,
     handleUpdate,
     setDeleteId
-}: any) {
+}: MilestoneItemProps) {
     const dragControls = useDragControls();
 
     return (

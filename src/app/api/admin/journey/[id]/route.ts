@@ -20,7 +20,7 @@ export async function PATCH(
         const { year, title, description, align } = body;
 
         const updateFields: string[] = [];
-        const updateValues: any[] = [];
+        const updateValues: unknown[] = [];
 
         if (year !== undefined) {
             updateFields.push('year = ?');
@@ -53,7 +53,7 @@ export async function PATCH(
             updateValues
         );
 
-        await logActivity(request, admin.id, 'UPDATE_JOURNEY_MILESTONE', { id, title });
+        await logActivity(request, admin.id.toString(), 'UPDATE_JOURNEY_MILESTONE', { id, title });
 
         return NextResponse.json({ success: true });
     } catch (error) {
@@ -80,7 +80,7 @@ export async function DELETE(
     try {
         await query('DELETE FROM journey_milestones WHERE id = ?', [id]);
 
-        await logActivity(request, admin.id, 'DELETE_JOURNEY_MILESTONE', { id });
+        await logActivity(request, admin.id.toString(), 'DELETE_JOURNEY_MILESTONE', { id });
 
         return NextResponse.json({ success: true });
     } catch (error) {

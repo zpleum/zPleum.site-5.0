@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -20,7 +20,6 @@ import {
     Trash2,
     Star,
     Plus,
-    X,
     Terminal,
     Cpu,
     Globe,
@@ -30,7 +29,8 @@ import {
 } from 'lucide-react';
 import ImageUploadZone from '@/components/admin/ImageUploadZone';
 
-const iconMap: Record<string, any> = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const iconMap: Record<string, React.ComponentType<any>> = {
     Terminal,
     Cpu,
     Globe,
@@ -50,7 +50,7 @@ export default function EditProjectPage() {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState('');
-    const [categories, setCategories] = useState<any[]>([]);
+    const [categories, setCategories] = useState<{ name: string; icon: string }[]>([]);
     const [uploadMode, setUploadMode] = useState<'url' | 'file'>('url');
     const [imageUrlInput, setImageUrlInput] = useState('');
     const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
@@ -67,14 +67,9 @@ export default function EditProjectPage() {
         featured: false,
     });
 
-    useEffect(() => {
-        if (id) {
-            fetchProject();
-            fetchCategories();
-        }
-    }, [id]);
 
-    const fetchCategories = async () => {
+
+    const fetchCategories = useCallback(async () => {
         try {
             const res = await fetch('/api/admin/categories');
             const data = await res.json();
@@ -82,9 +77,9 @@ export default function EditProjectPage() {
         } catch (err) {
             console.error('Fetch categories error:', err);
         }
-    };
+    }, []);
 
-    const fetchProject = async () => {
+    const fetchProject = useCallback(async () => {
         try {
             const response = await fetch(`/api/admin/projects/${id}`);
             if (response.ok) {
@@ -98,7 +93,7 @@ export default function EditProjectPage() {
                 } else if (typeof project.images === 'string') {
                     try {
                         parsedImages = JSON.parse(project.images);
-                    } catch (e) {
+                    } catch {
                         parsedImages = [];
                     }
                 }
@@ -130,7 +125,14 @@ export default function EditProjectPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [id]);
+
+    useEffect(() => {
+        if (id) {
+            fetchProject();
+            fetchCategories();
+        }
+    }, [id, fetchProject, fetchCategories]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -169,7 +171,7 @@ export default function EditProjectPage() {
             }
 
             router.push('/admin/dashboard/projects');
-        } catch (err) {
+        } catch {
             setError('An error occurred. Please try again.');
             setSaving(false);
         }

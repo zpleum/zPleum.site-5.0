@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -41,11 +41,9 @@ export default function ProfileSettingsPage() {
     const [discordUrl, setDiscordUrl] = useState('');
     const [email, setEmail] = useState('');
 
-    useEffect(() => {
-        fetchProfile();
-    }, []);
 
-    const fetchProfile = async () => {
+
+    const fetchProfile = useCallback(async () => {
         try {
             const response = await fetch('/api/admin/profile');
 
@@ -71,7 +69,11 @@ export default function ProfileSettingsPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [router]);
+
+    useEffect(() => {
+        fetchProfile();
+    }, [fetchProfile]);
 
     const handleSave = async () => {
         if (!fullName.trim()) {
@@ -112,7 +114,7 @@ export default function ProfileSettingsPage() {
                 const data = await response.json();
                 setError(data.error || 'Failed to update profile');
             }
-        } catch (error) {
+        } catch {
             setError('Error updating profile');
         } finally {
             setSaving(false);
@@ -152,7 +154,7 @@ export default function ProfileSettingsPage() {
                 const data = await response.json();
                 setError(data.error || 'Failed to delete profile picture');
             }
-        } catch (error) {
+        } catch {
             setError('Error deleting profile picture');
         } finally {
             setIsDeleting(false);

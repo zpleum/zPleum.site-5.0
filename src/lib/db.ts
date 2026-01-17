@@ -35,17 +35,18 @@ export async function getConnection(): Promise<mysql.PoolConnection> {
 }
 
 // Execute a query with automatic connection handling and simple retry for ECONNRESET
-export async function query<T = any>(
+export async function query<T = unknown>(
     sql: string,
-    values?: any[],
+    values?: unknown[],
     retries = 2
 ): Promise<T> {
     try {
         const pool = getPool();
         const [rows] = await pool.query(sql, values);
         return rows as T;
-    } catch (error: any) {
-        if (retries > 0 && (error.code === 'ECONNRESET' || error.code === 'PROTOCOL_CONNECTION_LOST')) {
+    } catch (error: unknown) {
+        const dbError = error as { code?: string };
+        if (retries > 0 && (dbError.code === 'ECONNRESET' || dbError.code === 'PROTOCOL_CONNECTION_LOST')) {
             console.warn(`Database connection lost. Retrying... (${retries} left)`);
             return query(sql, values, retries - 1);
         }
@@ -54,9 +55,9 @@ export async function query<T = any>(
 }
 
 // Execute a query and return the first row
-export async function queryOne<T = any>(
+export async function queryOne<T = unknown>(
     sql: string,
-    values?: any[]
+    values?: unknown[]
 ): Promise<T | null> {
     const rows = await query<T[]>(sql, values);
     return rows.length > 0 ? rows[0] : null;
@@ -69,10 +70,9 @@ export async function testConnection(): Promise<boolean> {
         const connection = await pool.getConnection();
         await connection.ping();
         connection.release();
-        console.log('✅ Database connection successful');
         return true;
     } catch (error) {
-        console.error('❌ Database connection failed:', error);
+        console.error('Database connection failed:', error);
         return false;
     }
 }

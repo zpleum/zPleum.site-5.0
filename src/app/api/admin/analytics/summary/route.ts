@@ -7,8 +7,13 @@ export async function GET(request: NextRequest) {
     if (authResult instanceof NextResponse) return authResult;
 
     try {
+        interface AnalyticsCount {
+            total_views: number;
+            unique_visitors: number;
+        }
+
         // 1. Total Views & Unique Visitors (All time)
-        const counts = await query(`
+        const counts = await query<AnalyticsCount[]>(`
             SELECT 
                 COUNT(*) as total_views,
                 COUNT(DISTINCT ip_hash) as unique_visitors
@@ -16,7 +21,7 @@ export async function GET(request: NextRequest) {
         `);
 
         // 2. Today's stats
-        const todayStats = await query(`
+        const todayStats = await query<AnalyticsCount[]>(`
             SELECT 
                 COUNT(*) as total_views,
                 COUNT(DISTINCT ip_hash) as unique_visitors
@@ -25,7 +30,12 @@ export async function GET(request: NextRequest) {
         `);
 
         // 3. Top Pages
-        const topPages = await query(`
+        interface TopPageRow {
+            path: string;
+            views: number;
+        }
+
+        const topPages = await query<TopPageRow[]>(`
             SELECT path, COUNT(*) as views
             FROM traffic_logs
             GROUP BY path
@@ -34,7 +44,12 @@ export async function GET(request: NextRequest) {
         `);
 
         // 4. Project distribution by category (for donut chart)
-        const categoryDist = await query(`
+        interface CategoryDistRow {
+            category: string;
+            count: number;
+        }
+
+        const categoryDist = await query<CategoryDistRow[]>(`
             SELECT category, COUNT(*) as count
             FROM projects
             GROUP BY category
@@ -42,8 +57,8 @@ export async function GET(request: NextRequest) {
 
         return NextResponse.json({
             summary: {
-                total: (counts as any)[0],
-                today: (todayStats as any)[0],
+                total: counts[0],
+                today: todayStats[0],
             },
             topPages,
             categoryDist

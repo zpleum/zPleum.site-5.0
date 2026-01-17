@@ -3,7 +3,16 @@ import { query } from '@/lib/db';
 
 export async function GET() {
     try {
-        const milestones = await query<any[]>(
+        interface Milestone {
+            id: string | number;
+            title: string;
+            description: string;
+            date: string;
+            icon: string;
+            display_order: number;
+        }
+
+        const milestones = await query<Milestone[]>(
             `SELECT * FROM journey_milestones ORDER BY display_order ASC`
         );
 

@@ -3,16 +3,27 @@ import { requireAuth } from '@/lib/middleware/auth-middleware';
 import { query } from '@/lib/db';
 import { v4 as uuidv4 } from 'uuid';
 
-export async function GET(request: NextRequest) {
-    const authResult = await requireAuth(request);
+export async function GET(_request: NextRequest) {
+    const authResult = await requireAuth(_request);
 
     if (authResult instanceof NextResponse) {
         return authResult;
     }
 
     try {
+        interface Incident {
+            id: string;
+            title: string;
+            description: string | null;
+            severity: 'critical' | 'warning' | 'info';
+            status: 'resolved' | 'investigating' | 'monitoring';
+            started_at: Date | string;
+            resolved_at: Date | string | null;
+            created_at: Date | string;
+        }
+
         // Fetch incidents from database
-        const incidents = await query<any[]>(
+        const incidents = await query<Incident[]>(
             'SELECT * FROM incidents ORDER BY started_at DESC LIMIT 10'
         );
 

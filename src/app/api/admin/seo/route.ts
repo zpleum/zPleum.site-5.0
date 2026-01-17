@@ -10,7 +10,14 @@ export async function GET(request: NextRequest) {
     }
 
     try {
-        const seoSettings = await query<any[]>(
+        interface SeoSettings {
+            site_title: string;
+            site_description: string | null;
+            keywords: string | null;
+            og_image: string | null;
+        }
+
+        const seoSettings = await query<SeoSettings[]>(
             'SELECT site_title, site_description, keywords, og_image FROM seo_settings WHERE id = 1'
         );
 

@@ -15,13 +15,18 @@ export async function POST(request: NextRequest) {
 
     try {
         // Parse request body (optional - may be empty for initial QR code request)
-        let body: any = {};
+        interface SetupRequestBody {
+            password?: string;
+            revealSecret?: boolean;
+        }
+
+        let body: SetupRequestBody = {};
         try {
             const text = await request.text();
             if (text) {
                 body = JSON.parse(text);
             }
-        } catch (parseError) {
+        } catch {
             // No body or invalid JSON - use defaults
             body = {};
         }
@@ -34,7 +39,13 @@ export async function POST(request: NextRequest) {
         // Generate QR code (always provided)
         const qrCode = await generateQRCode(admin.email, secret);
 
-        const response: any = {
+        interface SetupResponse {
+            qrCode: string;
+            tempEncryptedSecret: string;
+            secret?: string;
+        }
+
+        const response: SetupResponse = {
             qrCode,
             tempEncryptedSecret: encryptedSecret,
         };
@@ -49,7 +60,11 @@ export async function POST(request: NextRequest) {
             }
 
             // Get admin's password hash
-            const admins = await query<any[]>(
+            interface PasswordResult {
+                password_hash: string;
+            }
+
+            const admins = await query<PasswordResult[]>(
                 'SELECT password_hash FROM admins WHERE id = ?',
                 [admin.id]
             );

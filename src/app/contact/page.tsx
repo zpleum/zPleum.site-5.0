@@ -38,7 +38,7 @@ export default function Contact() {
 
         fetch('/api/contact-info')
             .then(res => res.json())
-            .then(data => setContactInfo(data.contactInfo || contactInfo))
+            .then(data => setContactInfo(prev => data.contactInfo || prev))
             .catch(err => console.error('Error fetching contact info:', err));
     }, []);
 
@@ -46,15 +46,12 @@ export default function Contact() {
         e.preventDefault();
 
         if (!captchaToken) {
-            console.log('Dispatch attempted without captcha token');
             setSubmitStatus({
                 type: 'error',
                 message: 'Please complete the captcha verification.',
             });
             return;
         }
-
-        console.log('Dispatching with token:', captchaToken.substring(0, 10) + '...');
 
         setIsSubmitting(true);
         setSubmitStatus({ type: null, message: '' });
@@ -81,7 +78,7 @@ export default function Contact() {
                 } else {
                     setSubmitStatus({
                         type: 'success',
-                        message: 'Message sent successfully! I\'ll get back to you soon.',
+                        message: `Message sent successfully! I'll get back to you soon.`,
                     });
                     setFormData({ name: '', email: '', subject: '', message: '' });
                 }
@@ -220,7 +217,7 @@ export default function Contact() {
                                         { icon: Github, href: contactInfo.github_url, color: "hover:bg-blue-600" },
                                         { icon: Facebook, href: contactInfo.facebook_url, color: "hover:bg-pink-600" },
                                         { icon: MessageCircle, href: contactInfo.discord_url, color: "hover:bg-purple-600" }
-                                    ].map((social, i) => (
+                                    ].map((social: { icon: React.ComponentType<{ size?: number; className?: string }>; href: string; color: string }, i) => (
                                         <a
                                             key={i}
                                             href={social.href}
@@ -336,15 +333,12 @@ export default function Contact() {
                                         <div className="flex-1 w-full origin-left">
                                             <TurnstileCaptcha
                                                 onSuccess={(token) => {
-                                                    console.log('Captcha validated');
                                                     setCaptchaToken(token);
                                                 }}
                                                 onError={() => {
-                                                    console.log('Captcha error');
                                                     setCaptchaToken(null);
                                                 }}
                                                 onExpire={() => {
-                                                    console.log('Captcha expired');
                                                     setCaptchaToken(null);
                                                 }}
                                                 resetTrigger={captchaResetTrigger}

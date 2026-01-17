@@ -28,7 +28,7 @@ export default function TrafficTracker() {
                 // use keepalive to ensure the request is sent even if the user navigates away
                 keepalive: true
             });
-        } catch (error) {
+        } catch {
             // Silent fail to not disrupt user experience
         }
     };

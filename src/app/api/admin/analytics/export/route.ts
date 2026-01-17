@@ -8,9 +8,30 @@ export async function GET(request: NextRequest) {
     if (authResult instanceof NextResponse) return authResult;
 
     try {
+        interface ActivityLogRow {
+            id: number;
+            admin_id: string | null;
+            action: string;
+            details: string;
+            ip_address: string;
+            user_agent: string;
+            created_at: string | Date;
+        }
+
+        interface TrafficLogRow {
+            id: number;
+            path: string;
+            method: string;
+            ip_address: string;
+            user_agent: string;
+            status: number;
+            duration: number;
+            created_at: string | Date;
+        }
+
         // Fetch all logs
-        const activityLogs = await query('SELECT * FROM activity_logs ORDER BY created_at DESC LIMIT 5000');
-        const trafficLogs = await query('SELECT * FROM traffic_logs ORDER BY created_at DESC LIMIT 5000');
+        const activityLogs = await query<ActivityLogRow[]>('SELECT * FROM activity_logs ORDER BY created_at DESC LIMIT 5000');
+        const trafficLogs = await query<TrafficLogRow[]>('SELECT * FROM traffic_logs ORDER BY created_at DESC LIMIT 5000');
 
         const exportData = {
             exportDate: new Date().toISOString(),
@@ -20,7 +41,7 @@ export async function GET(request: NextRequest) {
         };
 
         // Log this action
-        await logActivity(request, authResult.admin.id, 'UPDATE_ADMIN', { action: 'EXPORT_LOGS' });
+        await logActivity(request, authResult.admin.id.toString(), 'UPDATE_ADMIN', { action: 'EXPORT_LOGS' });
 
         return new NextResponse(JSON.stringify(exportData, null, 2), {
             status: 200,

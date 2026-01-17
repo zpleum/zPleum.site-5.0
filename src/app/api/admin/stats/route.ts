@@ -11,7 +11,16 @@ export async function GET(request: NextRequest) {
     }
 
     try {
-        const stats = await query<any[]>(
+        interface Stat {
+            id: string;
+            label: string;
+            value: string;
+            icon: string;
+            color: string;
+            display_order: number;
+        }
+
+        const stats = await query<Stat[]>(
             `SELECT * FROM stats ORDER BY display_order ASC`
         );
 
@@ -46,7 +55,11 @@ export async function POST(request: NextRequest) {
 
         const id = uuidv4();
 
-        const maxOrder = await query<any[]>(
+        interface MaxOrderResult {
+            max_order: number | null;
+        }
+
+        const maxOrder = await query<MaxOrderResult[]>(
             `SELECT MAX(display_order) as max_order FROM stats`
         );
         const displayOrder = (maxOrder[0]?.max_order ?? -1) + 1;
@@ -56,7 +69,7 @@ export async function POST(request: NextRequest) {
             [id, label, value, icon, color, displayOrder]
         );
 
-        await logActivity(request, admin.id, 'CREATE_STAT', { id, label });
+        await logActivity(request, admin.id.toString(), 'CREATE_STAT', { id, label });
 
         return NextResponse.json({ success: true, id });
     } catch (error) {

@@ -20,7 +20,6 @@ export default function TurnstileCaptcha({ onSuccess, onError, onExpire, resetTr
         : "0x4AAAAAACE8v7gu7uRijkjf";
 
     const handleSuccess = (token: string) => {
-        console.log('Turnstile success:', token.substring(0, 10) + '...');
         onSuccess(token);
     };
 
@@ -32,7 +31,6 @@ export default function TurnstileCaptcha({ onSuccess, onError, onExpire, resetTr
     };
 
     const handleExpire = () => {
-        console.log('Turnstile expired');
         if (onExpire) {
             onExpire();
         }
@@ -41,7 +39,6 @@ export default function TurnstileCaptcha({ onSuccess, onError, onExpire, resetTr
     // Handle manual resets from parent
     useEffect(() => {
         if (resetTrigger && resetTrigger > 0) {
-            console.log('Resetting Turnstile widget');
             turnstileRef.current?.reset();
         }
     }, [resetTrigger]);

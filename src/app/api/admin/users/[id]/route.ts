@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/middleware/auth-middleware';
 import { query } from '@/lib/db';
+import { logActivity } from '@/lib/logger';
 
 export async function DELETE(
     request: NextRequest,
@@ -17,7 +18,7 @@ export async function DELETE(
 
     try {
         // Prevent self-deletion
-        if (admin.id === id) {
+        if (String(admin.id) === id) {
             return NextResponse.json(
                 { error: 'Cannot delete your own account' },
                 { status: 400 }
@@ -25,10 +26,15 @@ export async function DELETE(
         }
 
         // Delete admin (cascade will delete sessions and backup codes)
-        const result = await query(
+        await query(
             'DELETE FROM admins WHERE id = ?',
             [id]
         );
+
+        // Log the revocation activity
+        await logActivity(request, String(admin.id), 'REVOKE_ADMIN', {
+            revoked_admin_id: id
+        });
 
         return NextResponse.json({
             success: true,

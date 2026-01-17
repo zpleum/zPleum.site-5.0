@@ -32,8 +32,9 @@ const iconOptions = [
     { name: 'Cloud', component: Cloud }
 ];
 
-const iconMap: Record<string, any> = {
-    Terminal,
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const iconMap: Record<string, React.ComponentType<any>> = {
+Terminal,
     Cpu,
     Globe,
     Code,
@@ -132,7 +133,7 @@ export default function SkillsPage() {
                 const data = await response.json();
                 setError(data.error || 'Failed to add category');
             }
-        } catch (error) {
+        } catch {
             setError('Error adding category');
         }
     };
@@ -161,7 +162,7 @@ export default function SkillsPage() {
                 const data = await response.json();
                 setError(data.error || 'Failed to update category');
             }
-        } catch (error) {
+        } catch {
             setError('Error updating category');
         }
     };
@@ -184,7 +185,7 @@ export default function SkillsPage() {
             } else {
                 setError('Failed to delete category');
             }
-        } catch (error) {
+        } catch {
             setError('Error deleting category');
         } finally {
             setIsDeleting(false);
@@ -253,7 +254,7 @@ export default function SkillsPage() {
                 const data = await response.json();
                 setError(data.error || 'Failed to add skill');
             }
-        } catch (error) {
+        } catch {
             setError('Error adding skill');
         }
     };
@@ -287,7 +288,7 @@ export default function SkillsPage() {
             } else {
                 setError('Failed to update skill');
             }
-        } catch (error) {
+        } catch {
             setError('Error updating skill');
         }
     };
@@ -314,7 +315,7 @@ export default function SkillsPage() {
             } else {
                 setError('Failed to delete skill');
             }
-        } catch (error) {
+        } catch {
             setError('Error deleting skill');
         }
     };
@@ -555,7 +556,6 @@ export default function SkillsPage() {
     );
 }
 
-// Category Item Component
 const CategoryItem = memo(function CategoryItemComponent({
     cat,
     editingCategoryId,
@@ -578,7 +578,29 @@ const CategoryItem = memo(function CategoryItemComponent({
     handleReorderSkills,
     showEditIconDropdown,
     setShowEditIconDropdown
-}: any) {
+}: {
+    cat: SkillCategory;
+    editingCategoryId: string | null;
+    editingCategoryData: { title: string; icon: string };
+    setEditingCategoryData: (data: { title: string; icon: string }) => void;
+    setEditingCategoryId: (id: string | null) => void;
+    handleUpdateCategory: (id: string) => void;
+    setDeleteCategoryId: (id: string | null) => void;
+    expandedCategory: string | null;
+    setExpandedCategory: (id: string | null) => void;
+    newSkillName: string;
+    setNewSkillName: (name: string) => void;
+    handleAddSkill: (categoryId: string) => void;
+    editingSkillId: string | null;
+    editingSkillName: string;
+    setEditingSkillId: (id: string | null) => void;
+    setEditingSkillName: (name: string) => void;
+    handleUpdateSkill: (categoryId: string, skillId: string) => void;
+    handleDeleteSkill: (categoryId: string, skillId: string) => void;
+    handleReorderSkills: (categoryId: string, newOrder: Skill[]) => void;
+    showEditIconDropdown: boolean;
+    setShowEditIconDropdown: (show: boolean) => void;
+}) {
     const dragControls = useDragControls();
     const IconComponent = iconMap[cat.icon] || Terminal;
     const isExpanded = expandedCategory === cat.id;
@@ -778,7 +800,16 @@ const SkillItem = memo(function SkillItemComponent({
     setEditingSkillName,
     handleUpdateSkill,
     handleDeleteSkill
-}: any) {
+}: {
+    skill: Skill;
+    categoryId: string;
+    editingSkillId: string | null;
+    editingSkillName: string;
+    setEditingSkillId: (id: string | null) => void;
+    setEditingSkillName: (name: string) => void;
+    handleUpdateSkill: (categoryId: string, skillId: string) => void;
+    handleDeleteSkill: (categoryId: string, skillId: string) => void;
+}) {
     const dragControls = useDragControls();
 
     return (
@@ -843,3 +874,4 @@ const SkillItem = memo(function SkillItemComponent({
         </Reorder.Item>
     );
 });
+

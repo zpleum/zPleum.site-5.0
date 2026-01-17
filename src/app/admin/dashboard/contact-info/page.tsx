@@ -78,7 +78,7 @@ export default function ContactInfoPage() {
                 const data = await response.json();
                 setError(data.error || 'Failed to update contact info');
             }
-        } catch (error) {
+        } catch {
             setError('Error updating contact info');
         } finally {
             setSaving(false);

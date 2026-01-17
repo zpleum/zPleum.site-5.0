@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Terminal, Cpu, Globe, Code, Database, Cloud } from "lucide-react";
 import { useState, useEffect } from "react";
 
-const iconMap: Record<string, any> = {
+const iconMap: Record<string, React.ComponentType<any>> = { // eslint-disable-line @typescript-eslint/no-explicit-any
     Terminal,
     Cpu,
     Globe,

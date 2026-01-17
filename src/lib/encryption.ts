@@ -5,16 +5,9 @@ let ENCRYPTION_KEY = process.env.TOTP_ENCRYPTION_KEY || process.env.ENCRYPTION_K
 
 // Validate encryption key
 if (!ENCRYPTION_KEY) {
-    console.error('⚠️  ENCRYPTION_KEY not set in environment variables!');
-    console.error('⚠️  Generating temporary key for development (NOT SECURE FOR PRODUCTION)');
-    console.error('⚠️  Run: node -e "console.log(require(\'crypto\').randomBytes(32).toString(\'hex\'))"');
-    console.error('⚠️  Then add to .env.local: ENCRYPTION_KEY=<generated-key>');
-
     // Generate temporary key for development
     ENCRYPTION_KEY = crypto.randomBytes(32).toString('hex');
 } else if (ENCRYPTION_KEY.length !== 64) {
-    console.error(`⚠️  ENCRYPTION_KEY has invalid length: ${ENCRYPTION_KEY.length} (expected 64)`);
-    console.error('⚠️  Run: node -e "console.log(require(\'crypto\').randomBytes(32).toString(\'hex\'))"');
     throw new Error('Invalid ENCRYPTION_KEY length. Must be 64 hex characters (32 bytes)');
 }
 
@@ -61,7 +54,7 @@ export function decrypt(encryptedData: string): string {
         const key = Buffer.from(ENCRYPTION_KEY, 'hex');
         const data = Buffer.from(encryptedData, 'base64');
 
-        const salt = data.subarray(0, SALT_LENGTH);
+
         const iv = data.subarray(SALT_LENGTH, TAG_POSITION);
         const tag = data.subarray(TAG_POSITION, ENCRYPTED_POSITION);
         const encrypted = data.subarray(ENCRYPTED_POSITION);

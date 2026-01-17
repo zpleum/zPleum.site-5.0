@@ -34,11 +34,12 @@ export async function POST(request: NextRequest) {
             success: true,
             url: relativePath
         });
-    } catch (error: any) {
+    } catch (error: unknown) {
+        const err = error as { message?: string };
         console.error('Image upload error:', error);
         return NextResponse.json({
             error: 'Failed to upload image',
-            message: error.message
+            message: err.message
         }, { status: 500 });
     }
 }

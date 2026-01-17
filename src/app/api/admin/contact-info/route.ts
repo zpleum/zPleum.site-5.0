@@ -3,6 +3,15 @@ import { requireAuth } from '@/lib/middleware/auth-middleware';
 import { query } from '@/lib/db';
 import { logActivity } from '@/lib/logger';
 
+interface ContactInfo {
+    id: number;
+    email: string;
+    location: string;
+    github_url: string;
+    facebook_url: string;
+    discord_url: string;
+}
+
 export async function GET(request: NextRequest) {
     const authResult = await requireAuth(request);
     if (authResult instanceof NextResponse) {
@@ -10,7 +19,7 @@ export async function GET(request: NextRequest) {
     }
 
     try {
-        const contactInfo = await query<any[]>(
+        const contactInfo = await query<ContactInfo[]>(
             `SELECT * FROM contact_info WHERE id = 1 LIMIT 1`
         );
 
@@ -27,8 +36,8 @@ export async function GET(request: NextRequest) {
         }
 
         return NextResponse.json({ contactInfo: contactInfo[0] });
-    } catch (error) {
-        console.error('Error fetching contact info:', error);
+    } catch {
+        console.error('Error fetching contact info');
         return NextResponse.json(
             { error: 'Failed to fetch contact info' },
             { status: 500 }
@@ -49,7 +58,7 @@ export async function PATCH(request: NextRequest) {
         const { email, location, github_url, facebook_url, discord_url } = body;
 
         const updateFields: string[] = [];
-        const updateValues: any[] = [];
+        const updateValues: unknown[] = [];
 
         if (email !== undefined) {
             updateFields.push('email = ?');
@@ -86,11 +95,11 @@ export async function PATCH(request: NextRequest) {
             updateValues
         );
 
-        await logActivity(request, admin.id, 'UPDATE_CONTACT_INFO', { email, location });
+        await logActivity(request, String(admin.id), 'UPDATE_CONTACT_INFO', { email, location });
 
         return NextResponse.json({ success: true });
-    } catch (error) {
-        console.error('Error updating contact info:', error);
+    } catch {
+        console.error('Error updating contact info');
         return NextResponse.json(
             { error: 'Failed to update contact info' },
             { status: 500 }

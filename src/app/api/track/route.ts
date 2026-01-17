@@ -6,7 +6,7 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
         await logTraffic(request, body.path);
         return NextResponse.json({ success: true });
-    } catch (error) {
+    } catch {
         return NextResponse.json({ success: false }, { status: 500 });
     }
 }

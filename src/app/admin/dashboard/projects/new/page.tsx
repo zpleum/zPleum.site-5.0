@@ -20,7 +20,6 @@ import {
     Trash2,
     Star,
     Plus,
-    X,
     Terminal,
     Cpu,
     Globe,
@@ -30,7 +29,7 @@ import {
 } from 'lucide-react';
 import ImageUploadZone from '@/components/admin/ImageUploadZone';
 
-const iconMap: Record<string, any> = {
+const iconMap: Record<string, React.ComponentType<any>> = { // eslint-disable-line @typescript-eslint/no-explicit-any
     Terminal,
     Cpu,
     Globe,
@@ -46,7 +45,7 @@ export default function NewProjectPage() {
     const [error, setError] = useState('');
     const [uploadMode, setUploadMode] = useState<'url' | 'file'>('url');
     const [imageUrlInput, setImageUrlInput] = useState('');
-    const [categories, setCategories] = useState<any[]>([]);
+    const [categories, setCategories] = useState<{ name: string; icon: string }[]>([]);
     const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
 
     const [formData, setFormData] = useState({
@@ -67,9 +66,12 @@ export default function NewProjectPage() {
             .then(data => {
                 const cats = (data.categories || []);
                 setCategories(cats);
-                if (cats.length > 0 && !formData.category) {
-                    setFormData(prev => ({ ...prev, category: cats[0].name }));
-                }
+                setFormData(prev => {
+                    if (cats.length > 0 && !prev.category) {
+                        return { ...prev, category: cats[0].name };
+                    }
+                    return prev;
+                });
             })
             .catch(err => console.error('Fetch categories error:', err));
     }, []);
@@ -111,7 +113,7 @@ export default function NewProjectPage() {
             }
 
             router.push('/admin/dashboard/projects');
-        } catch (err) {
+        } catch {
             setError('An error occurred. Please try again.');
             setLoading(false);
         }

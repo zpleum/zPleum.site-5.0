@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { query } from '@/lib/db';
 import { serialize } from 'cookie';
+import crypto from 'crypto';
 
 interface Session {
     id: string;
@@ -48,7 +49,6 @@ export async function createSession(
     adminId: number,
     request: NextRequest
 ): Promise<string> {
-    const crypto = require('crypto');
     const sessionId = crypto.randomBytes(32).toString('hex');
 
     // Session lifetime: 1 hour

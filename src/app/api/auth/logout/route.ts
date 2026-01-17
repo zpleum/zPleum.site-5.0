@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
 
         if (session) {
             // Log logout activity
-            await logActivity(request, session.admin_id, 'LOGOUT', {});
+            await logActivity(request, session.admin_id.toString(), 'LOGOUT', {});
 
             // Delete session from database
             await deleteSession(session.id);

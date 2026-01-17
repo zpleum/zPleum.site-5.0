@@ -4,10 +4,10 @@ import { query, queryOne } from '@/lib/db';
 import { logActivity } from '@/lib/logger';
 
 export async function GET(
-    request: NextRequest,
+    _request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
-    const authResult = await requireAuth(request);
+    const authResult = await requireAuth(_request);
     if (authResult instanceof NextResponse) {
         return authResult;
     }
@@ -15,7 +15,15 @@ export async function GET(
     const { id } = await params;
 
     try {
-        const category = await queryOne<any>(
+        interface SkillCategory {
+            id: string;
+            title: string;
+            icon: string;
+            color: string;
+            display_order: number;
+        }
+
+        const category = await queryOne<SkillCategory>(
             `SELECT * FROM skill_categories WHERE id = ?`,
             [id]
         );
@@ -27,7 +35,15 @@ export async function GET(
             );
         }
 
-        const skills = await query<any[]>(
+        interface Skill {
+            id: string;
+            category_id: string;
+            name: string;
+            proficiency: number;
+            display_order: number;
+        }
+
+        const skills = await query<Skill[]>(
             `SELECT * FROM skills WHERE category_id = ? ORDER BY display_order ASC`,
             [id]
         );
@@ -59,7 +75,7 @@ export async function PATCH(
         const { title, icon, color } = body;
 
         const updateFields: string[] = [];
-        const updateValues: any[] = [];
+        const updateValues: unknown[] = [];
 
         if (title !== undefined) {
             updateFields.push('title = ?');
@@ -88,7 +104,7 @@ export async function PATCH(
             updateValues
         );
 
-        await logActivity(request, admin.id, 'UPDATE_SKILL_CATEGORY', { id, title });
+        await logActivity(request, String(admin.id), 'UPDATE_SKILL_CATEGORY', { id, title });
 
         return NextResponse.json({ success: true });
     } catch (error) {
@@ -115,7 +131,7 @@ export async function DELETE(
     try {
         await query('DELETE FROM skill_categories WHERE id = ?', [id]);
 
-        await logActivity(request, admin.id, 'DELETE_SKILL_CATEGORY', { id });
+        await logActivity(request, String(admin.id), 'DELETE_SKILL_CATEGORY', { id });
 
         return NextResponse.json({ success: true });
     } catch (error) {

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { verifyPassword } from '@/lib/auth/password';
-import { verifyToken, decryptSecret } from '@/lib/auth/totp';
+import { verifyToken } from '@/lib/auth/totp';
 import { createSession, setSessionCookie } from '@/lib/session';
 import { query } from '@/lib/db';
 import { checkRateLimit, getClientIdentifier, RateLimits } from '@/lib/middleware/rate-limit';
@@ -40,7 +40,17 @@ export async function POST(request: NextRequest) {
         const { email, password, totpCode, backupCode } = validation.data;
 
         // Get admin from database
-        const admins = await query<any[]>(
+        interface AdminRow {
+            id: number;
+            email: string;
+            password_hash: string;
+            is_2fa_enabled: boolean;
+            totp_secret: string | null;
+            totp_secret_encrypted: string | null;
+            is_2fa_setup_complete: boolean;
+        }
+
+        const admins = await query<AdminRow[]>(
             'SELECT * FROM admins WHERE email = ?',
             [email]
         );
@@ -105,7 +115,14 @@ export async function POST(request: NextRequest) {
 
             // Try backup code if TOTP failed
             if (!twoFAValid && backupCode) {
-                const backupCodes = await query<any[]>(
+                interface BackupCodeRow {
+                    id: number | string;
+                    admin_id: number;
+                    code: string;
+                    used_at: Date | string | null;
+                }
+
+                const backupCodes = await query<BackupCodeRow[]>(
                     'SELECT * FROM backup_codes WHERE admin_id = ? AND code = ? AND used_at IS NULL',
                     [admin.id, backupCode]
                 );
@@ -146,7 +163,7 @@ export async function POST(request: NextRequest) {
         // Set session cookie
         response.headers.append('Set-Cookie', sessionCookie);
 
-        await logActivity(request, admin.id, 'LOGIN', { email: admin.email });
+        await logActivity(request, admin.id.toString(), 'LOGIN', { email: admin.email });
 
         return response;
     } catch (error) {

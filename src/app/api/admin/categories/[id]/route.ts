@@ -18,6 +18,10 @@ export async function PATCH(
     const { id } = await params;
 
     try {
+        interface CategoryRow {
+            name: string;
+        }
+
         const body = await request.json();
         const validation = categorySchema.safeParse(body);
 
@@ -29,7 +33,7 @@ export async function PATCH(
         }
 
         // Get old name first for cascading update
-        const oldCategory = await queryOne('SELECT name FROM categories WHERE id = ?', [id]);
+        const oldCategory = await queryOne<CategoryRow>('SELECT name FROM categories WHERE id = ?', [id]);
 
         await query(
             'UPDATE categories SET name = ? WHERE id = ?',
@@ -44,15 +48,16 @@ export async function PATCH(
             );
         }
 
-        await logActivity(request, (authResult as { admin: any }).admin.id, 'UPDATE_CATEGORY', {
+        await logActivity(request, authResult.admin.id.toString(), 'UPDATE_CATEGORY', {
             id,
-            oldName: (oldCategory as any)?.name,
+            oldName: oldCategory?.name,
             newName: validation.data.name
         });
 
         return NextResponse.json({ success: true, message: 'Category updated and projects synced' });
-    } catch (error: any) {
-        if (error.code === 'ER_DUP_ENTRY') {
+    } catch (error: unknown) {
+        const dbError = error as { code?: string };
+        if (dbError.code === 'ER_DUP_ENTRY') {
             return NextResponse.json({ error: 'Category name already exists' }, { status: 409 });
         }
         console.error('Update category error:', error);
@@ -70,7 +75,11 @@ export async function DELETE(
     const { id } = await params;
 
     try {
-        const oldCategory = await queryOne('SELECT name FROM categories WHERE id = ?', [id]);
+        interface CategoryRow {
+            name: string;
+        }
+
+        const oldCategory = await queryOne<CategoryRow>('SELECT name FROM categories WHERE id = ?', [id]);
 
         await query('DELETE FROM categories WHERE id = ?', [id]);
 
@@ -81,9 +90,9 @@ export async function DELETE(
             );
         }
 
-        await logActivity(request, (authResult as { admin: any }).admin.id, 'DELETE_CATEGORY', {
+        await logActivity(request, authResult.admin.id.toString(), 'DELETE_CATEGORY', {
             id,
-            name: (oldCategory as any)?.name
+            name: oldCategory?.name
         });
 
         return NextResponse.json({ success: true, message: 'Category deleted and projects reassigned' });

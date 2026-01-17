@@ -8,11 +8,8 @@ import {
   Github,
   Facebook,
   MessageCircle,
-  Mail,
   Code,
   Briefcase,
-  MapPin,
-  Languages,
   Sparkles,
   Heart,
   Rocket,
@@ -21,7 +18,7 @@ import {
 } from "lucide-react";
 import Skills from "@/components/Skills";
 
-const iconMap: Record<string, any> = {
+const iconMap: Record<string, React.ComponentType<any>> = { // eslint-disable-line @typescript-eslint/no-explicit-any
   Briefcase,
   Code,
   Heart,
@@ -30,9 +27,25 @@ const iconMap: Record<string, any> = {
   Sparkles
 };
 
+interface Stat {
+  id?: string;
+  icon: string;
+  value: string;
+  label: string;
+  color: string;
+}
+
+interface Milestone {
+  id?: string;
+  year: string;
+  title: string;
+  description: string;
+  align: 'left' | 'right';
+}
+
 export default function About() {
-  const [stats, setStats] = useState<any[]>([]);
-  const [milestones, setMilestones] = useState<any[]>([]);
+  const [stats, setStats] = useState<Stat[]>([]);
+  const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [profile, setProfile] = useState({ full_name: 'Wiraphat Makwong', profile_image_url: '/profile.png' });
 
   useEffect(() => {

@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
 
         await Promise.all(promises);
 
-        await logActivity(request, authResult.admin.id, 'UPDATE_ADMIN', { action: 'REORDER_CATEGORIES', count: ids.length });
+        await logActivity(request, authResult.admin.id.toString(), 'UPDATE_ADMIN', { action: 'REORDER_CATEGORIES', count: ids.length });
 
         return NextResponse.json({ success: true });
     } catch (error) {

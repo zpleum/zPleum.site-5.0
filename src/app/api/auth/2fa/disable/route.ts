@@ -31,7 +31,24 @@ export async function POST(request: NextRequest) {
         const { password } = validation.data;
 
         // Verify password
-        const passwordValid = await verifyPassword(password, admin.password_hash);
+        // Get admin's password hash separately as it's not in the auth middleware object
+        interface PasswordResult {
+            password_hash: string;
+        }
+
+        const admins = await query<PasswordResult[]>(
+            'SELECT password_hash FROM admins WHERE id = ?',
+            [admin.id]
+        );
+
+        if (admins.length === 0) {
+            return NextResponse.json(
+                { error: 'Admin not found' },
+                { status: 404 }
+            );
+        }
+
+        const passwordValid = await verifyPassword(password, admins[0].password_hash);
 
         if (!passwordValid) {
             return NextResponse.json(

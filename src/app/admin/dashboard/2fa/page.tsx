@@ -12,15 +12,15 @@ import {
     QrCode,
     Lock,
     AlertTriangle,
-    RefreshCw,
     Download
 } from 'lucide-react';
+import Image from 'next/image';
 
 export default function TwoFactorPage() {
     const [loading, setLoading] = useState(true);
     const [isEnabled, setIsEnabled] = useState(false);
     const [step, setStep] = useState<'overview' | 'setup' | 'verify' | 'backup'>('overview');
-    const [setupData, setSetupData] = useState<any>(null);
+    const [setupData, setSetupData] = useState<{ qrCode: string; tempEncryptedSecret: string } | null>(null);
     const [totpCode, setTotpCode] = useState('');
     const [backupCodes, setBackupCodes] = useState<string[]>([]);
     const [error, setError] = useState('');
@@ -61,7 +61,7 @@ export default function TwoFactorPage() {
             } else {
                 setError('Failed to initiate 2FA setup.');
             }
-        } catch (err) {
+        } catch {
             setError('An error occurred during setup.');
         } finally {
             setLoading(false);
@@ -78,7 +78,7 @@ export default function TwoFactorPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     totpCode,
-                    encryptedSecret: setupData.tempEncryptedSecret
+                    encryptedSecret: setupData?.tempEncryptedSecret || ''
                 })
             });
 
@@ -91,7 +91,7 @@ export default function TwoFactorPage() {
                 const data = await res.json();
                 setError(data.error || 'Invalid verification code.');
             }
-        } catch (err) {
+        } catch {
             setError('Verification failed.');
         } finally {
             setLoading(false);
@@ -118,7 +118,7 @@ export default function TwoFactorPage() {
                 const data = await res.json();
                 setError(data.error || 'Failed to disable 2FA.');
             }
-        } catch (err) {
+        } catch {
             setError('Error disabling 2FA.');
         } finally {
             setLoading(false);
@@ -148,7 +148,7 @@ export default function TwoFactorPage() {
                 const data = await res.json();
                 setError(data.error || 'Invalid password');
             }
-        } catch (err) {
+        } catch {
             setError('Failed to reveal secret');
         } finally {
             setLoading(false);
@@ -262,8 +262,13 @@ export default function TwoFactorPage() {
                                             Setup Interface
                                         </h3>
 
-                                        <div className="bg-white p-6 rounded-3xl inline-block mb-10 shadow-2xl">
-                                            <img src={setupData?.qrCode} alt="Security QR Code" className="w-56 h-56" />
+                                        <div className="relative w-56 h-56 mx-auto mb-10 bg-white p-6 rounded-3xl shadow-2xl">
+                                            <Image
+                                                src={setupData?.qrCode || ''}
+                                                alt="Security QR Code"
+                                                fill
+                                                className="object-contain p-4"
+                                            />
                                         </div>
 
                                         <p className="text-[var(--foreground-muted)] font-medium mb-6 max-w-sm mx-auto">
@@ -277,7 +282,7 @@ export default function TwoFactorPage() {
                                                 onClick={() => setShowManualEntry(true)}
                                                 className="text-sm text-blue-500 hover:text-blue-400 font-bold underline transition-colors"
                                             >
-                                                Can't scan QR code? Click for manual entry
+                                                Can&apos;t scan QR code? Click for manual entry
                                             </button>
                                         ) : (
                                             <div className="p-6 bg-[var(--background)]/50 border border-[var(--border)] rounded-2xl overflow-hidden">

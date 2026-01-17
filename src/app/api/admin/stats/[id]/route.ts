@@ -20,7 +20,7 @@ export async function PATCH(
         const { label, value, icon, color } = body;
 
         const updateFields: string[] = [];
-        const updateValues: any[] = [];
+        const updateValues: unknown[] = [];
 
         if (label !== undefined) {
             updateFields.push('label = ?');
@@ -53,7 +53,7 @@ export async function PATCH(
             updateValues
         );
 
-        await logActivity(request, admin.id, 'UPDATE_STAT', { id, label });
+        await logActivity(request, admin.id.toString(), 'UPDATE_STAT', { id, label });
 
         return NextResponse.json({ success: true });
     } catch (error) {
@@ -80,7 +80,7 @@ export async function DELETE(
     try {
         await query('DELETE FROM stats WHERE id = ?', [id]);
 
-        await logActivity(request, admin.id, 'DELETE_STAT', { id });
+        await logActivity(request, admin.id.toString(), 'DELETE_STAT', { id });
 
         return NextResponse.json({ success: true });
     } catch (error) {

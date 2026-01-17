@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 
 interface Admin {
@@ -15,11 +15,7 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
     const [admin, setAdmin] = useState<Admin | null>(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        checkAuth();
-    }, [pathname]);
-
-    const checkAuth = async () => {
+    const checkAuth = useCallback(async () => {
         try {
             const response = await fetch('/api/auth/me');
 
@@ -31,10 +27,14 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
             const data = await response.json();
             setAdmin(data.admin);
             setLoading(false);
-        } catch (error) {
+        } catch {
             router.push('/admin/login');
         }
-    };
+    }, [router]);
+
+    useEffect(() => {
+        checkAuth();
+    }, [pathname, checkAuth]);
 
     if (loading) {
         return (

@@ -15,7 +15,13 @@ export async function GET(request: NextRequest) {
         }
 
         // Get admin data (without sensitive info)
-        const admins = await query<any[]>(
+        interface AdminResult {
+            id: number;
+            email: string;
+            is_2fa_enabled: boolean;
+        }
+
+        const admins = await query<AdminResult[]>(
             'SELECT id, email, is_2fa_enabled FROM admins WHERE id = ?',
             [session.admin_id]
         );

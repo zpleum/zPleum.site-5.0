@@ -5,14 +5,11 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     ArrowLeft,
-    ShieldAlert,
     Clock,
     User,
-    Activity,
     Search,
     RefreshCw,
     Database,
-    ExternalLink,
     Filter
 } from 'lucide-react';
 
@@ -54,7 +51,7 @@ export default function LogsPage() {
     const parseDetails = (detailsStr: string) => {
         try {
             return JSON.parse(detailsStr);
-        } catch (e) {
+        } catch {
             return {};
         }
     };
@@ -188,7 +185,8 @@ export default function LogsPage() {
                                                 </td>
                                                 <td className="px-8 py-6">
                                                     <div className="max-w-xs space-y-1">
-                                                        {Object.entries(details).map(([key, val]: [string, any]) => (
+                                                        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                                                                                                                {Object.entries(details).map(([key, val]: [string, any]) => (
                                                             <div key={key} className="flex items-center gap-2 text-[10px]">
                                                                 <span className="font-black uppercase tracking-widest opacity-30">{key}:</span>
                                                                 <span className="font-medium truncate block">{JSON.stringify(val)}</span>
@@ -221,3 +219,4 @@ export default function LogsPage() {
         </div>
     );
 }
+

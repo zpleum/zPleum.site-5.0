@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, ComponentType } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -12,9 +12,7 @@ import {
     ShieldAlert,
     Globe,
     ArrowRight,
-    TrendingUp,
     ShieldCheck,
-    ShieldX,
     FolderGit2,
     BarChart3,
     History,
@@ -41,15 +39,51 @@ interface Admin {
     is2FAEnabled: boolean;
 }
 
+interface Incident {
+    id: string;
+    title: string;
+    description: string;
+    severity: 'critical' | 'warning' | 'info';
+    status: 'resolved' | 'investigating' | 'monitoring';
+    started_at: string;
+}
+
+interface Health {
+    services: {
+        database: { status: string };
+        backend: { status: string; version: string; uptime: number };
+    };
+    config: Record<string, boolean>;
+    system: {
+        memory: { heapUsed: string; heapTotal: string };
+        cpuCount: number;
+    };
+}
+
+interface AnalyticsSummary {
+    today: {
+        unique_visitors: number;
+    };
+}
+
+interface ActionLink {
+    title: string;
+    description: string;
+    href: string;
+    icon: ComponentType<{ size?: number; className?: string }>;
+    gradient: string;
+    color: string;
+    fullWidth?: boolean;
+}
+
 export default function AdminDashboard() {
     const router = useRouter();
     const [admin, setAdmin] = useState<Admin | null>(null);
-    const [projects, setProjects] = useState<any[]>([]);
-    const [admins, setAdmins] = useState<any[]>([]);
-    const [analytics, setAnalytics] = useState<any>(null);
-    const [incidents, setIncidents] = useState<any[]>([]);
-    const [health, setHealth] = useState<any>(null);
-    const [loadingHealth, setLoadingHealth] = useState(true);
+    const [projects, setProjects] = useState<unknown[]>([]);
+    const [admins, setAdmins] = useState<unknown[]>([]);
+    const [analytics, setAnalytics] = useState<AnalyticsSummary | null>(null);
+    const [incidents, setIncidents] = useState<Incident[]>([]);
+    const [health, setHealth] = useState<Health | null>(null);
 
     useEffect(() => {
         fetchData();
@@ -62,6 +96,7 @@ export default function AdminDashboard() {
             fetchIncidents();
         }, 30000);
         return () => clearInterval(interval);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const fetchIncidents = async () => {
@@ -81,13 +116,15 @@ export default function AdminDashboard() {
             const res = await fetch('/api/admin/health');
             if (res.ok) {
                 const data = await res.json();
-                setHealth(data);
+                healthSetter(data);
             }
         } catch (error) {
             console.error('Error fetching health:', error);
-        } finally {
-            setLoadingHealth(false);
         }
+    };
+
+    const healthSetter = (data: Health) => {
+        setHealth(data);
     };
 
     const fetchData = async () => {
@@ -268,7 +305,7 @@ export default function AdminDashboard() {
             color: "red",
             fullWidth: true
         }
-    ];
+    ] as ActionLink[];
 
     return (
         <div className="relative min-h-screen bg-[var(--background)] overflow-x-hidden">
@@ -510,7 +547,7 @@ export default function AdminDashboard() {
 
                 {/* Quick Actions Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-16">
-                    {actionLinks.map((action: any, i) => (
+                    {actionLinks.map((action, i) => (
                         <motion.div
                             key={i}
                             initial={{ opacity: 0, scale: 0.95 }}

@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS certificate_categories (
+    id VARCHAR(36) PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    sort_order INT DEFAULT 0
+);

@@ -7,9 +7,10 @@ import { ArrowRight } from "lucide-react";
 interface CarouselProps {
     images: string[];
     title: string;
+    onImageClick?: (src: string, alt: string, index: number) => void;
 }
 
-export default function Carousel({ images, title }: CarouselProps) {
+export default function Carousel({ images, title, onImageClick }: CarouselProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
 
     useEffect(() => {
@@ -33,7 +34,7 @@ export default function Carousel({ images, title }: CarouselProps) {
     if (!images || images.length === 0) return null;
 
     return (
-        <div className="relative w-full h-full group/carousel">
+        <div className="relative w-full h-full group/carousel cursor-zoom-in" onClick={() => onImageClick?.(images[currentIndex], `${title} - View ${currentIndex + 1}`, currentIndex)}>
             {images.map((img, idx) => (
                 <div
                     key={idx}

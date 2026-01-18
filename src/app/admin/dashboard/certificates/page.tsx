@@ -7,26 +7,27 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     ArrowLeft,
     Plus,
-    FolderGit2,
+    Award,
     ExternalLink,
-    Github,
     Edit3,
     Trash2,
     Star,
     AlertTriangle,
-    ShieldAlert
+    ShieldAlert,
+    Calendar,
+    BadgeCheck
 } from 'lucide-react';
 
-interface Project {
+interface Certificate {
     id: string;
     title: string;
-    description: string | null;
+    issuer: string;
+    date: string;
+    credential_url: string | null;
     image_url: string | null;
-    project_url: string | null;
-    github_url: string | null;
-    technologies: string[];
+    images: string[] | string | null;
+    skills: string[] | string | null;
     featured: boolean;
-    images: string[] | string | null;  // Added for gallery count
     created_by_email: string;
     updated_by_email: string;
     created_at: string;
@@ -36,53 +37,49 @@ interface Project {
 
 import CategoryManager from '@/components/admin/CategoryManager';
 
-// ... other imports ...
-
-export default function ProjectsPage() {
-    const [projects, setProjects] = useState<Project[]>([]);
+export default function CertificatesPage() {
+    const [certificates, setCertificates] = useState<Certificate[]>([]);
     const [loading, setLoading] = useState(true);
     const [deleteId, setDeleteId] = useState<string | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
-    const [activeTab, setActiveTab] = useState<'projects' | 'categories'>('projects');
+    const [activeTab, setActiveTab] = useState<'certificates' | 'categories'>('certificates');
 
     useEffect(() => {
-        fetchProjects();
+        fetchCertificates();
     }, []);
 
-    const fetchProjects = async () => {
+    const fetchCertificates = async () => {
         try {
-            const response = await fetch('/api/admin/projects');
+            const response = await fetch('/api/admin/certificates');
             if (response.ok) {
                 const data = await response.json();
-                setProjects(data.projects || []);
+                setCertificates(data.certificates || []);
             }
         } catch {
-            console.error('Error fetching projects');
+            console.error('Error fetching certificates');
         } finally {
             setLoading(false);
         }
     };
-
-    // ... confirmDelete ...
 
     const confirmDelete = async () => {
         if (!deleteId) return;
 
         setIsDeleting(true);
         try {
-            const response = await fetch(`/api/admin/projects/${deleteId}`, {
+            const response = await fetch(`/api/admin/certificates/${deleteId}`, {
                 method: 'DELETE',
             });
 
             if (response.ok) {
-                setProjects(projects.filter(p => p.id !== deleteId));
+                setCertificates(certificates.filter(c => c.id !== deleteId));
                 setDeleteId(null);
             } else {
-                alert('Failed to delete project');
+                alert('Failed to delete certificate');
             }
         } catch {
-            console.error('Error deleting project');
-            alert('Error deleting project');
+            console.error('Error deleting certificate');
+            alert('Error deleting certificate');
         } finally {
             setIsDeleting(false);
         }
@@ -107,7 +104,7 @@ export default function ProjectsPage() {
                                 <ArrowLeft size={20} />
                             </Link>
                             <div>
-                                <h1 className="text-2xl font-black tracking-tighter uppercase">Project Architecture</h1>
+                                <h1 className="text-2xl font-black tracking-tighter uppercase">Certificate Registry</h1>
                                 <p className="text-xs font-black uppercase tracking-widest opacity-30 text-[var(--foreground)] mt-1">Foundry Interface</p>
                             </div>
                         </div>
@@ -116,32 +113,32 @@ export default function ProjectsPage() {
                         <div className="flex items-center gap-4">
                             <div className="flex p-1 bg-[var(--muted)]/20 rounded-xl border border-[var(--border)]">
                                 <button
-                                    onClick={() => setActiveTab('projects')}
-                                    className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'projects'
-                                            ? 'bg-[var(--foreground)] text-[var(--background)] shadow-lg'
-                                            : 'text-[var(--foreground)]/50 hover:text-[var(--foreground)]'
+                                    onClick={() => setActiveTab('certificates')}
+                                    className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'certificates'
+                                        ? 'bg-[var(--foreground)] text-[var(--background)] shadow-lg'
+                                        : 'text-[var(--foreground)]/50 hover:text-[var(--foreground)]'
                                         }`}
                                 >
-                                    Projects
+                                    Certificates
                                 </button>
                                 <button
                                     onClick={() => setActiveTab('categories')}
                                     className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'categories'
-                                            ? 'bg-[var(--foreground)] text-[var(--background)] shadow-lg'
-                                            : 'text-[var(--foreground)]/50 hover:text-[var(--foreground)]'
+                                        ? 'bg-[var(--foreground)] text-[var(--background)] shadow-lg'
+                                        : 'text-[var(--foreground)]/50 hover:text-[var(--foreground)]'
                                         }`}
                                 >
                                     Categories
                                 </button>
                             </div>
 
-                            {activeTab === 'projects' && (
+                            {activeTab === 'certificates' && (
                                 <Link
-                                    href="/admin/dashboard/projects/new"
+                                    href="/admin/dashboard/certificates/new"
                                     className="flex items-center gap-3 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-black uppercase tracking-widest transition-all shadow-xl hover:scale-105 active:scale-95"
                                 >
                                     <Plus size={16} />
-                                    <span className="text-xs">New Project</span>
+                                    <span className="text-xs">New Certificate</span>
                                 </Link>
                             )}
                         </div>
@@ -152,9 +149,9 @@ export default function ProjectsPage() {
             {/* Content */}
             <main className="relative z-10 max-w-7xl mx-auto px-6 py-12">
                 <AnimatePresence mode='wait'>
-                    {activeTab === 'projects' ? (
+                    {activeTab === 'certificates' ? (
                         <motion.div
-                            key="projects"
+                            key="certificates"
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: 20 }}
@@ -163,45 +160,45 @@ export default function ProjectsPage() {
                             {loading ? (
                                 <div className="flex flex-col items-center justify-center py-32 text-center">
                                     <div className="w-20 h-20 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-8"></div>
-                                    <h3 className="text-2xl font-black uppercase tracking-tighter">Synchronizing Projects</h3>
+                                    <h3 className="text-2xl font-black uppercase tracking-tighter">Synchronizing Registry</h3>
                                     <p className="text-[var(--foreground-muted)] font-medium">Fetching entities from the database...</p>
                                 </div>
-                            ) : projects.length === 0 ? (
+                            ) : certificates.length === 0 ? (
                                 <div className="flex flex-col items-center justify-center py-32 text-center bg-[var(--card-bg)]/30 backdrop-blur-xl rounded-[3rem] border border-[var(--border)] border-dashed">
                                     <div className="p-8 bg-blue-500/10 text-blue-500 rounded-full mb-8">
-                                        <FolderGit2 size={64} />
+                                        <Award size={64} />
                                     </div>
-                                    <h3 className="text-3xl font-black uppercase tracking-tighter mb-4">The Gallery is Empty</h3>
-                                    <p className="text-xl text-[var(--foreground-muted)] font-medium mb-10 max-w-md">No projects have been architected yet. Start building your portfolio today.</p>
+                                    <h3 className="text-3xl font-black uppercase tracking-tighter mb-4">The Registry is Empty</h3>
+                                    <p className="text-xl text-[var(--foreground-muted)] font-medium mb-10 max-w-md">No credentials have been issued. Start managing your licenses today.</p>
                                     <Link
-                                        href="/admin/dashboard/projects/new"
+                                        href="/admin/dashboard/certificates/new"
                                         className="px-10 py-5 bg-[var(--foreground)] text-[var(--background)] font-black uppercase tracking-widest rounded-2xl shadow-2xl hover:scale-105 transition-transform"
                                     >
-                                        Initialize First Project
+                                        Initialize First Certificate
                                     </Link>
                                 </div>
                             ) : (
                                 <div className="grid grid-cols-1 gap-8">
-                                    {projects.map((project, i) => (
+                                    {certificates.map((cert, i) => (
                                         <motion.div
-                                            key={project.id}
+                                            key={cert.id}
                                             initial={{ opacity: 0, y: 20 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ delay: i * 0.05 }}
                                             className="group relative bg-[var(--card-bg)]/50 backdrop-blur-xl rounded-[2.5rem] p-8 md:p-10 border border-[var(--border)] hover:border-blue-500/30 transition-all duration-500 shadow-2xl overflow-hidden"
                                         >
                                             <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none group-hover:opacity-10 transition-opacity">
-                                                <FolderGit2 size={160} />
+                                                <Award size={160} />
                                             </div>
 
                                             <div className="flex flex-col lg:flex-row gap-10">
                                                 {/* Image Preview Container */}
                                                 <div className="relative w-full lg:w-72 h-48 rounded-[1.5rem] overflow-hidden border border-[var(--border)] bg-[var(--background)]/50 shrink-0 group/img">
-                                                    {project.image_url ? (
+                                                    {cert.image_url ? (
                                                         <>
                                                             <Image
-                                                                src={project.image_url}
-                                                                alt={project.title}
+                                                                src={cert.image_url}
+                                                                alt={cert.title}
                                                                 fill
                                                                 className="object-cover transition-transform duration-700 group-hover/img:scale-110"
                                                             />
@@ -209,7 +206,7 @@ export default function ProjectsPage() {
                                                         </>
                                                     ) : (
                                                         <div className="w-full h-full flex flex-col items-center justify-center gap-3 opacity-20">
-                                                            <FolderGit2 size={40} />
+                                                            <Award size={40} />
                                                             <span className="text-[10px] font-black uppercase tracking-widest">No Visual Matrix</span>
                                                         </div>
                                                     )}
@@ -219,14 +216,14 @@ export default function ProjectsPage() {
                                                     {(() => {
                                                         let count = 0;
                                                         try {
-                                                            if (Array.isArray(project.images)) count = project.images.length;
-                                                            else if (typeof project.images === 'string') count = JSON.parse(project.images).length;
+                                                            if (Array.isArray(cert.images)) count = cert.images.length;
+                                                            else if (typeof cert.images === 'string') count = JSON.parse(cert.images).length;
                                                         } catch { }
 
                                                         if (count > 1) {
                                                             return (
                                                                 <div className="absolute bottom-3 right-3 px-3 py-1 bg-black/60 backdrop-blur-md rounded-full text-[10px] font-black uppercase tracking-widest text-white border border-white/10 flex items-center gap-1.5 z-10">
-                                                                    <FolderGit2 size={10} />
+                                                                    <Award size={10} />
                                                                     <span>+{count - 1}</span>
                                                                 </div>
                                                             );
@@ -238,56 +235,62 @@ export default function ProjectsPage() {
                                                 <div className="flex-1 flex flex-col lg:flex-row justify-between items-start gap-10">
                                                     <div className="flex-1 space-y-6">
                                                         <div className="flex items-center gap-4">
-                                                            <h3 className="text-3xl md:text-4xl font-black tracking-tighter uppercase">{project.title}</h3>
-                                                            {project.featured && (
+                                                            <h3 className="text-3xl md:text-4xl font-black tracking-tighter uppercase">{cert.title}</h3>
+                                                            {cert.featured && (
                                                                 <div className="flex items-center gap-2 px-4 py-1.5 bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 rounded-full text-[10px] font-black uppercase tracking-widest">
                                                                     <Star size={12} fill="currentColor" />
                                                                     <span>Featured</span>
                                                                 </div>
                                                             )}
-                                                            {project.category && (
+                                                            {cert.category && (
                                                                 <div className="flex items-center gap-2 px-4 py-1.5 bg-purple-500/10 text-purple-500 border border-purple-500/20 rounded-full text-[10px] font-black uppercase tracking-widest">
-                                                                    <span>{project.category}</span>
+                                                                    <span>{cert.category}</span>
                                                                 </div>
                                                             )}
                                                         </div>
 
-                                                        <p className="text-xl text-[var(--foreground-muted)] font-medium line-clamp-2 max-w-3xl leading-relaxed">
-                                                            {project.description}
-                                                        </p>
+                                                        <div className="space-y-2">
+                                                            <div className="flex items-center gap-2 text-[var(--foreground-muted)] font-medium">
+                                                                <BadgeCheck size={16} className="text-blue-500" />
+                                                                <span className="text-sm">Issued by <strong className="text-[var(--foreground)]">{cert.issuer}</strong></span>
+                                                            </div>
+                                                            <div className="flex items-center gap-2 text-[var(--foreground-muted)] font-medium">
+                                                                <Calendar size={16} className="text-[var(--foreground)]/30" />
+                                                                <span className="text-sm">{cert.date}</span>
+                                                            </div>
+                                                        </div>
 
-                                                        {project.technologies && project.technologies.length > 0 && (
+
+                                                        {cert.skills && (
                                                             <div className="flex flex-wrap gap-3">
-                                                                {project.technologies.map((tech, idx) => (
-                                                                    <span
-                                                                        key={idx}
-                                                                        className="px-4 py-2 bg-[var(--muted)]/50 text-[var(--foreground)]/70 border border-[var(--border)] rounded-xl text-xs font-black uppercase tracking-widest"
-                                                                    >
-                                                                        {tech}
-                                                                    </span>
-                                                                ))}
+                                                                {(() => {
+                                                                    try {
+                                                                        const skills = typeof cert.skills === 'string' ? JSON.parse(cert.skills) : cert.skills;
+                                                                        if (Array.isArray(skills)) {
+                                                                            return skills.map((skill: string, idx: number) => (
+                                                                                <span
+                                                                                    key={idx}
+                                                                                    className="px-4 py-2 bg-[var(--muted)]/50 text-[var(--foreground)]/70 border border-[var(--border)] rounded-xl text-xs font-black uppercase tracking-widest"
+                                                                                >
+                                                                                    {skill}
+                                                                                </span>
+                                                                            ));
+                                                                        }
+                                                                    } catch { }
+                                                                    return null;
+                                                                })()}
                                                             </div>
                                                         )}
 
                                                         <div className="flex flex-wrap gap-8 pt-4">
-                                                            {project.project_url && (
+                                                            {cert.credential_url && (
                                                                 <a
-                                                                    href={project.project_url}
+                                                                    href={cert.credential_url}
                                                                     target="_blank"
                                                                     rel="noopener noreferrer"
                                                                     className="flex items-center gap-2 text-sm font-black uppercase tracking-widest text-[var(--foreground)]/50 hover:text-blue-500 transition-colors"
                                                                 >
-                                                                    <ExternalLink size={16} /> Interface
-                                                                </a>
-                                                            )}
-                                                            {project.github_url && (
-                                                                <a
-                                                                    href={project.github_url}
-                                                                    target="_blank"
-                                                                    rel="noopener noreferrer"
-                                                                    className="flex items-center gap-2 text-sm font-black uppercase tracking-widest text-[var(--foreground)]/50 hover:text-blue-500 transition-colors"
-                                                                >
-                                                                    <Github size={16} /> Repository
+                                                                    <ExternalLink size={16} /> Verify Credential
                                                                 </a>
                                                             )}
                                                         </div>
@@ -295,14 +298,14 @@ export default function ProjectsPage() {
 
                                                     <div className="flex lg:flex-col gap-4 w-full lg:w-auto">
                                                         <Link
-                                                            href={`/admin/dashboard/projects/${project.id}/edit`}
+                                                            href={`/admin/dashboard/certificates/${cert.id}/edit`}
                                                             className="flex-1 flex items-center justify-center gap-3 px-8 py-5 bg-blue-500/10 hover:bg-blue-500 text-blue-500 hover:text-white border border-blue-500/20 rounded-2xl font-black uppercase tracking-widest transition-all"
                                                         >
                                                             <Edit3 size={20} />
                                                             <span>Edit</span>
                                                         </Link>
                                                         <button
-                                                            onClick={() => setDeleteId(project.id)}
+                                                            onClick={() => setDeleteId(cert.id)}
                                                             className="flex-1 flex items-center justify-center gap-3 px-8 py-5 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/20 rounded-2xl font-black uppercase tracking-widest transition-all"
                                                         >
                                                             <Trash2 size={20} />
@@ -325,9 +328,9 @@ export default function ProjectsPage() {
                             transition={{ duration: 0.2 }}
                         >
                             <CategoryManager
-                                apiEndpoint="/api/admin/categories"
-                                title="Project Classifications"
-                                description="Manage project category tags and organization filters"
+                                apiEndpoint="/api/admin/certificate-categories"
+                                title="Certificate Classifications"
+                                description="Manage credentials and licenses types"
                             />
                         </motion.div>
                     )}
@@ -365,7 +368,7 @@ export default function ProjectsPage() {
                                 </h2>
 
                                 <p className="text-[var(--foreground-muted)] text-lg font-medium mb-12 leading-relaxed">
-                                    Are you certain you wish to permanently terminate this project matrix? This action is <span className="text-red-500 font-bold uppercase tracking-wider">irreversible</span>.
+                                    Are you certain you wish to permanently terminate this credential record? This action is <span className="text-red-500 font-bold uppercase tracking-wider">irreversible</span>.
                                 </p>
 
                                 <div className="flex flex-col sm:flex-row gap-5">

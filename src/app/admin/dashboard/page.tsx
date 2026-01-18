@@ -30,7 +30,8 @@ import {
     Info,
     Clock,
     Shield,
-    Search
+    Search,
+    Award
 } from 'lucide-react';
 
 interface Admin {
@@ -80,6 +81,7 @@ export default function AdminDashboard() {
     const router = useRouter();
     const [admin, setAdmin] = useState<Admin | null>(null);
     const [projects, setProjects] = useState<unknown[]>([]);
+    const [certificates, setCertificates] = useState<unknown[]>([]);
     const [admins, setAdmins] = useState<unknown[]>([]);
     const [analytics, setAnalytics] = useState<AnalyticsSummary | null>(null);
     const [incidents, setIncidents] = useState<Incident[]>([]);
@@ -129,9 +131,10 @@ export default function AdminDashboard() {
 
     const fetchData = async () => {
         try {
-            const [meRes, projectsRes, adminsRes, analyticsRes] = await Promise.all([
+            const [meRes, projectsRes, certificatesRes, adminsRes, analyticsRes] = await Promise.all([
                 fetch('/api/auth/me'),
                 fetch('/api/admin/projects'),
+                fetch('/api/admin/certificates'),
                 fetch('/api/admin/users'),
                 fetch('/api/admin/analytics/summary'),
             ]);
@@ -150,6 +153,11 @@ export default function AdminDashboard() {
             if (projectsRes.ok) {
                 const projectsData = await projectsRes.json();
                 setProjects(projectsData.projects || []);
+            }
+
+            if (certificatesRes.ok) {
+                const certificatesData = await certificatesRes.json();
+                setCertificates(certificatesData.certificates || []);
             }
 
             if (adminsRes.ok) {
@@ -176,6 +184,13 @@ export default function AdminDashboard() {
     };
 
     const statsCards = [
+        {
+            label: "Total Certificates",
+            value: certificates.length,
+            icon: Award,
+            color: "pink",
+            href: "/admin/dashboard/certificates"
+        },
         {
             label: "Total Projects",
             value: projects.length,
@@ -225,10 +240,10 @@ export default function AdminDashboard() {
             color: "green"
         },
         {
-            title: "Category Registry",
-            description: "Define project classifications",
-            href: "/admin/dashboard/categories",
-            icon: FolderGit2,
+            title: "Certificate Registry",
+            description: "Manage credentials and licenses",
+            href: "/admin/dashboard/certificates",
+            icon: Award,
             gradient: "from-green-600 to-green-400",
             color: "green"
         },
@@ -359,7 +374,7 @@ export default function AdminDashboard() {
                 </motion.div>
 
                 {/* Stats Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
                     {statsCards.map((stat, i) => (
                         <motion.div
                             key={i}

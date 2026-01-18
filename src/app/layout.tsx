@@ -23,6 +23,18 @@ const sovKhongKhanad = localFontLoader({
   variable: "--font-sov-khongkhanad",
 });
 
+const lineSeed = localFontLoader({
+  src: [
+    {
+      path: "../fonts/LINESeedSansTH_W_Rg.woff2",
+      weight: "400",
+      style: "normal",
+
+    }
+  ],
+  variable: "--font-line-seed",
+});
+
 import { query } from "@/lib/db";
 
 export const revalidate = 0;
@@ -86,7 +98,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`scroll-smooth ${spaceGrotesk.variable} ${sovRangBab.variable} ${sovKhongKhanad.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`scroll-smooth ${spaceGrotesk.variable} ${sovRangBab.variable} ${sovKhongKhanad.variable} ${lineSeed.variable}`} suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{

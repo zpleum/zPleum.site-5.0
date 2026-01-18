@@ -23,7 +23,8 @@ import {
     ChevronUp,
     Download,
     ImagePlus,
-    Star
+    Star,
+    Loader2
 } from 'lucide-react';
 import ImageUploadZone from '@/components/admin/ImageUploadZone';
 
@@ -440,6 +441,70 @@ export default function NewCertificatePage() {
                             </div>
                         </div>
 
+                        <div className="bg-[var(--card-bg)]/50 backdrop-blur-xl rounded-[2.5rem] p-8 md:p-10 border border-[var(--border)] shadow-2xl">
+                            <h3 className="text-xl font-black uppercase tracking-widest mb-8 flex items-center gap-3">
+                                <RefreshCw className="text-green-500" size={20} />
+                                Skills & Validation
+                            </h3>
+
+                            <div className="space-y-8">
+                                <div>
+                                    <label htmlFor="skills" className="block text-xs font-black uppercase tracking-widest opacity-40 mb-3 ml-2">
+                                        Relevant Skills (Comma Separated)
+                                    </label>
+                                    <textarea
+                                        id="skills"
+                                        value={formData.skills}
+                                        onChange={(e) => setFormData({ ...formData, skills: e.target.value })}
+                                        className="w-full px-6 py-5 bg-[var(--background)]/50 border border-[var(--border)] rounded-2xl text-[var(--foreground)] placeholder-[var(--foreground)]/20 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium resize-none h-[120px]"
+                                        placeholder="Cloud Computing, System Design, Security..."
+                                    />
+                                </div>
+
+                                <div>
+                                    <label htmlFor="credential_url" className="block text-xs font-black uppercase tracking-widest opacity-40 mb-3 ml-2">
+                                        Credential URL
+                                    </label>
+                                    <div className="relative">
+                                        <div className="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--foreground)]/30">
+                                            <LinkIcon size={18} />
+                                        </div>
+                                        <input
+                                            id="credential_url"
+                                            type="url"
+                                            value={formData.credential_url}
+                                            onChange={(e) => setFormData({ ...formData, credential_url: e.target.value })}
+                                            className="w-full pl-14 pr-6 py-5 bg-[var(--background)]/50 border border-[var(--border)] rounded-2xl text-[var(--foreground)] placeholder-[var(--foreground)]/20 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium"
+                                            placeholder="https://aws.amazon.com/verify/..."
+                                        />
+                                    </div>
+                                </div>
+
+                                <div
+                                    onClick={() => setFormData({ ...formData, featured: !formData.featured })}
+                                    className="group relative flex items-center justify-between p-5 bg-[var(--background)]/40 border border-[var(--border)] rounded-2xl cursor-pointer hover:border-blue-500/50 transition-all overflow-hidden"
+                                >
+                                    <div className="relative z-10 flex items-center gap-4">
+                                        <div className={`p-2.5 rounded-xl transition-all ${formData.featured ? 'bg-blue-500/10 text-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.2)]' : 'bg-[var(--muted)]/20 text-[var(--foreground)]/30'}`}>
+                                            <Sparkles size={18} />
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] font-black uppercase tracking-widest leading-none">Featured Status</p>
+                                            <p className="text-[9px] font-medium opacity-30 mt-1 uppercase tracking-[0.2em]">Priority Display</p>
+                                        </div>
+                                    </div>
+
+                                    <div className={`relative w-12 h-6 rounded-full transition-all duration-500 ${formData.featured ? 'bg-blue-600' : 'bg-[var(--muted)]/30'}`}>
+                                        <motion.div
+                                            animate={{ x: formData.featured ? 26 : 4 }}
+                                            transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                                            className="absolute top-1 w-4 h-4 bg-white rounded-full shadow-xl"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         {/* R2 Storage Management */}
                         <div className="bg-[var(--card-bg)]/50 backdrop-blur-xl rounded-[2.5rem] p-8 md:p-10 border border-[var(--border)] shadow-2xl">
                             <button
@@ -539,71 +604,6 @@ export default function NewCertificatePage() {
                             )}
                         </div>
 
-
-                        <div className="bg-[var(--card-bg)]/50 backdrop-blur-xl rounded-[2.5rem] p-8 md:p-10 border border-[var(--border)] shadow-2xl">
-                            <h3 className="text-xl font-black uppercase tracking-widest mb-8 flex items-center gap-3">
-                                <RefreshCw className="text-green-500" size={20} />
-                                Skills & Validation
-                            </h3>
-
-                            <div className="space-y-8">
-                                <div>
-                                    <label htmlFor="skills" className="block text-xs font-black uppercase tracking-widest opacity-40 mb-3 ml-2">
-                                        Relevant Skills (Comma Separated)
-                                    </label>
-                                    <textarea
-                                        id="skills"
-                                        value={formData.skills}
-                                        onChange={(e) => setFormData({ ...formData, skills: e.target.value })}
-                                        className="w-full px-6 py-5 bg-[var(--background)]/50 border border-[var(--border)] rounded-2xl text-[var(--foreground)] placeholder-[var(--foreground)]/20 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium resize-none h-[120px]"
-                                        placeholder="Cloud Computing, System Design, Security..."
-                                    />
-                                </div>
-
-                                <div>
-                                    <label htmlFor="credential_url" className="block text-xs font-black uppercase tracking-widest opacity-40 mb-3 ml-2">
-                                        Credential URL
-                                    </label>
-                                    <div className="relative">
-                                        <div className="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--foreground)]/30">
-                                            <LinkIcon size={18} />
-                                        </div>
-                                        <input
-                                            id="credential_url"
-                                            type="url"
-                                            value={formData.credential_url}
-                                            onChange={(e) => setFormData({ ...formData, credential_url: e.target.value })}
-                                            className="w-full pl-14 pr-6 py-5 bg-[var(--background)]/50 border border-[var(--border)] rounded-2xl text-[var(--foreground)] placeholder-[var(--foreground)]/20 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium"
-                                            placeholder="https://aws.amazon.com/verify/..."
-                                        />
-                                    </div>
-                                </div>
-
-                                <div
-                                    onClick={() => setFormData({ ...formData, featured: !formData.featured })}
-                                    className="group relative flex items-center justify-between p-5 bg-[var(--background)]/40 border border-[var(--border)] rounded-2xl cursor-pointer hover:border-blue-500/50 transition-all overflow-hidden"
-                                >
-                                    <div className="relative z-10 flex items-center gap-4">
-                                        <div className={`p-2.5 rounded-xl transition-all ${formData.featured ? 'bg-blue-500/10 text-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.2)]' : 'bg-[var(--muted)]/20 text-[var(--foreground)]/30'}`}>
-                                            <Sparkles size={18} />
-                                        </div>
-                                        <div>
-                                            <p className="text-[10px] font-black uppercase tracking-widest leading-none">Featured Status</p>
-                                            <p className="text-[9px] font-medium opacity-30 mt-1 uppercase tracking-[0.2em]">Priority Display</p>
-                                        </div>
-                                    </div>
-
-                                    <div className={`relative w-12 h-6 rounded-full transition-all duration-500 ${formData.featured ? 'bg-blue-600' : 'bg-[var(--muted)]/30'}`}>
-                                        <motion.div
-                                            animate={{ x: formData.featured ? 26 : 4 }}
-                                            transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                                            className="absolute top-1 w-4 h-4 bg-white rounded-full shadow-xl"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
                         {error && (
                             <motion.div
                                 initial={{ opacity: 0, scale: 0.95 }}
@@ -641,6 +641,58 @@ export default function NewCertificatePage() {
                         </div>
                     </form>
                 </motion.div>
+                <AnimatePresence>
+                    {showDeleteR2Modal && (
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                onClick={() => setShowDeleteR2Modal(false)}
+                                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                            />
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                                className="relative w-full max-w-md bg-[var(--card-bg)] border border-[var(--border)] rounded-[2rem] overflow-hidden shadow-2xl"
+                            >
+                                <div className="p-8 space-y-6">
+                                    <div className="flex flex-col items-center text-center gap-4">
+                                        <div className="p-4 bg-red-500/10 text-red-500 rounded-2xl">
+                                            <Trash2 size={32} />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-xl font-black uppercase tracking-tight text-[var(--foreground)]">Permanently Delete?</h3>
+                                            <p className="text-sm text-[var(--foreground-muted)] font-medium mt-2">
+                                                This action cannot be undone. This asset will be permanently removed from cloud storage.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex gap-3">
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowDeleteR2Modal(false)}
+                                            className="flex-1 px-6 py-4 bg-[var(--muted)]/20 hover:bg-[var(--muted)]/40 text-[var(--foreground)] rounded-xl font-black uppercase tracking-widest text-xs transition-all border border-[var(--border)]"
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => selectedR2Image && deleteR2Image(selectedR2Image)}
+                                            disabled={!!deletingR2}
+                                            className="flex-1 px-6 py-4 bg-red-500 hover:bg-red-600 text-white rounded-xl font-black uppercase tracking-widest text-xs transition-all shadow-lg shadow-red-500/20 disabled:opacity-50 flex items-center justify-center gap-2"
+                                        >
+                                            {deletingR2 ? <Loader2 className="animate-spin" size={16} /> : <Trash2 size={16} />}
+                                            <span>Delete</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        </div>
+                    )}
+                </AnimatePresence>
             </main>
         </div >
     );

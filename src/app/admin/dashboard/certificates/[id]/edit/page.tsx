@@ -23,7 +23,8 @@ import {
     ChevronUp,
     Download,
     ImagePlus,
-    Star
+    Star,
+    Loader2
 } from 'lucide-react';
 import ImageUploadZone from '@/components/admin/ImageUploadZone';
 
@@ -708,6 +709,58 @@ export default function EditCertificatePage({ params }: { params: Promise<{ id: 
                         </div>
                     </form>
                 </motion.div>
+                <AnimatePresence>
+                    {showDeleteR2Modal && (
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                onClick={() => setShowDeleteR2Modal(false)}
+                                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                            />
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                                className="relative w-full max-w-md bg-[var(--card-bg)] border border-[var(--border)] rounded-[2rem] overflow-hidden shadow-2xl"
+                            >
+                                <div className="p-8 space-y-6">
+                                    <div className="flex flex-col items-center text-center gap-4">
+                                        <div className="p-4 bg-red-500/10 text-red-500 rounded-2xl">
+                                            <Trash2 size={32} />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-xl font-black uppercase tracking-tight text-[var(--foreground)]">Permanently Delete?</h3>
+                                            <p className="text-sm text-[var(--foreground-muted)] font-medium mt-2">
+                                                This action cannot be undone. This asset will be permanently removed from cloud storage.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex gap-3">
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowDeleteR2Modal(false)}
+                                            className="flex-1 px-6 py-4 bg-[var(--muted)]/20 hover:bg-[var(--muted)]/40 text-[var(--foreground)] rounded-xl font-black uppercase tracking-widest text-xs transition-all border border-[var(--border)]"
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => selectedR2Image && deleteR2Image(selectedR2Image)}
+                                            disabled={!!deletingR2}
+                                            className="flex-1 px-6 py-4 bg-red-500 hover:bg-red-600 text-white rounded-xl font-black uppercase tracking-widest text-xs transition-all shadow-lg shadow-red-500/20 disabled:opacity-50 flex items-center justify-center gap-2"
+                                        >
+                                            {deletingR2 ? <Loader2 className="animate-spin" size={16} /> : <Trash2 size={16} />}
+                                            <span>Delete</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        </div>
+                    )}
+                </AnimatePresence>
             </main>
         </div>
     );

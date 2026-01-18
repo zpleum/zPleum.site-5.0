@@ -55,7 +55,8 @@ export default function Certificates() {
                     const parsedCertificates = data.certificates.map((cert: any) => ({
                         ...cert,
                         skills: typeof cert.skills === 'string' ? JSON.parse(cert.skills) : cert.skills || [],
-                        images: typeof cert.images === 'string' ? JSON.parse(cert.images) : cert.images || []
+                        images: typeof cert.images === 'string' ? JSON.parse(cert.images) : cert.images || [],
+                        featured: cert.featured === 1 || cert.featured === true || cert.featured === '1' || cert.featured === 'true'
                     }));
                     setCertificates(parsedCertificates);
                 }
@@ -196,10 +197,17 @@ export default function Certificates() {
                                 {/* Image Cover or Abstract Background */}
                                 <div className="relative h-56 w-full overflow-hidden border-b border-[var(--border)] group-hover:h-64 transition-all duration-500">
                                     {/* Category Pill Over Image */}
-                                    <div className="absolute top-4 left-4 z-20">
-                                        <div className="px-3 py-1.5 bg-black/40 backdrop-blur-md border border-white/10 rounded-full text-[10px] font-black uppercase tracking-widest text-white shadow-lg">
+                                    {/* Category Pill Over Image */}
+                                    <div className="absolute top-4 left-4 z-20 flex flex-col gap-2 pointer-events-none">
+                                        <div className="px-3 py-1.5 bg-black/40 backdrop-blur-md border border-white/10 rounded-full text-[10px] font-black uppercase tracking-widest text-white shadow-lg w-fit">
                                             {cert.category || 'Certification'}
                                         </div>
+                                        {cert.featured && (
+                                            <div className="px-3 py-1.5 bg-yellow-500/80 backdrop-blur-md border border-yellow-300/20 rounded-full text-[10px] font-black uppercase tracking-widest text-white shadow-lg w-fit flex items-center gap-2">
+                                                <Award size={10} className="text-white" />
+                                                Featured
+                                            </div>
+                                        )}
                                     </div>
 
                                     {cert.images && cert.images.length > 0 ? (

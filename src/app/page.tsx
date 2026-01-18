@@ -3,6 +3,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import HeroSection from "@/components/HeroSection";
+import CertificateShowcase from "@/components/CertificateShowcase";
 import ProjectShowcase from "@/components/ProjectShowcase";
 import Skills from "@/components/Skills";
 import { ArrowRight, Sparkles } from "lucide-react";
@@ -20,6 +21,12 @@ export default function Home() {
 
       <div className="relative z-10">
         <HeroSection />
+
+        {/* Certificate Showcase Section */}
+        <div id="certificates">
+          <CertificateShowcase />
+        </div>
+
         <div id="projects">
           <ProjectShowcase />
         </div>

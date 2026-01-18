@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Github, Linkedin, Mail, Facebook, Instagram, MessageCircle } from "lucide-react";
+import Link from "next/link";
+import { Github, Linkedin, Mail, Facebook, Instagram, MessageCircle, LayoutDashboard } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
 
 const Footer = () => {
@@ -106,10 +107,17 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="mt-8 pt-8 border-t border-[var(--border)] text-center md:text-left">
+        <div className="mt-8 pt-8 border-t border-[var(--border)] flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-[var(--foreground)]/50">
             &copy; {new Date().getFullYear()} Wiraphat Makwong. Licensed under MIT License.
           </p>
+          <Link
+            href="/admin/dashboard"
+            className="text-xs font-black uppercase tracking-[0.2em] text-[var(--foreground)]/30 hover:text-[var(--primary)] transition-all flex items-center gap-2 group"
+          >
+            <LayoutDashboard size={14} className="opacity-50 group-hover:opacity-100 transition-opacity" />
+            Go to Dashboard
+          </Link>
         </div>
       </div>
     </footer>

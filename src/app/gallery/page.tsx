@@ -32,13 +32,15 @@ export default function Gallery() {
 
     const fetchGalleryImages = async () => {
         try {
-            // Fetch both Projects (DB) and Raw Images (FS) in parallel
-            const [projectsRes, fsImagesRes] = await Promise.all([
+            // Fetch Projects (DB), Certificates (DB), and Raw Images (FS) in parallel
+            const [projectsRes, certificatesRes, fsImagesRes] = await Promise.all([
                 fetch('/api/projects'),
+                fetch('/api/certificates'),
                 fetch('/api/gallery-images')
             ]);
 
             let projectImages: { id: string; src: string; alt: string; category: string }[] = [];
+            let certificateImages: { id: string; src: string; alt: string; category: string }[] = [];
             const claimedImages = new Set<string>();
 
             // 1. Process Project Data
@@ -81,7 +83,52 @@ export default function Gallery() {
                 });
             }
 
-            // 2. Process FS Data (Orphaned Images)
+            // 2. Process Certificate Data
+            if (certificatesRes.ok) {
+                const data = await certificatesRes.json();
+                certificateImages = (data.certificates || []).flatMap((c: any) => {
+                    const allImages = [];
+                    // Handle potential JSON parsing for images array
+                    let certImages: string[] = [];
+                    try {
+                        certImages = typeof c.images === 'string' ? JSON.parse(c.images) : (Array.isArray(c.images) ? c.images : []);
+                    } catch (e) {
+                        certImages = [];
+                    }
+
+                    // Add main image
+                    if (c.image_url) {
+                        const filename = c.image_url.split('/').pop();
+                        if (filename) claimedImages.add(filename);
+
+                        allImages.push({
+                            id: `cert_${c.id}`,
+                            src: c.image_url,
+                            alt: c.title,
+                            category: c.category || 'Certification',
+                        });
+                    }
+
+                    // Add additional images
+                    certImages.forEach((img: string, index: number) => {
+                        if (img !== c.image_url) {
+                            const filename = img.split('/').pop();
+                            if (filename) claimedImages.add(filename);
+
+                            allImages.push({
+                                id: `cert_${c.id}_sub_${index}`,
+                                src: img,
+                                alt: `${c.title} - Evidence ${index + 1}`,
+                                category: 'Credential',
+                            });
+                        }
+                    });
+
+                    return allImages;
+                });
+            }
+
+            // 3. Process FS Data (Orphaned Images)
             let fsImages: { id: string; src: string; alt: string; category: string }[] = [];
             if (fsImagesRes.ok) {
                 const data = await fsImagesRes.json();
@@ -97,8 +144,8 @@ export default function Gallery() {
                 }
             }
 
-            // Combine and set
-            setImages([...projectImages, ...fsImages]);
+            // Combine and set - Mix them up slightly or just concat
+            setImages([...projectImages, ...certificateImages, ...fsImages]);
 
         } catch (error) {
             console.error('Error fetching gallery:', error);

@@ -55,13 +55,21 @@ export async function GET(request: NextRequest) {
             GROUP BY category
         `);
 
+        // 5. Certificate distribution by category
+        const certDist = await query<CategoryDistRow[]>(`
+            SELECT COALESCE(category, 'Certification') as category, COUNT(*) as count
+            FROM certificates
+            GROUP BY COALESCE(category, 'Certification')
+        `);
+
         return NextResponse.json({
             summary: {
                 total: counts[0],
                 today: todayStats[0],
             },
             topPages,
-            categoryDist
+            categoryDist,
+            certDist
         });
     } catch (error) {
         console.error('Fetch analytics summary error:', error);

@@ -4,105 +4,131 @@
 > **System Integrity: SECURE.**  
 > **Aesthetic State: SUPREME.**
 
-zPleum.site is not just a digital portfolio; it is a high-performance, monolithic ecosystem engineered with surgical technical depth and a "Foundry" design language. Built for the modern web, it merges industrial aesthetics with enterprise-grade security and real-time telemetry.
+zPleum.site is a high-performance, monolithic ecosystem engineered with surgical technical depth. It bridges industrial aesthetics with enterprise-grade security and real-time telemetry, creating a unified "Foundry" digital workspace.
 
 ---
 
 ## 🏛️ Project Vision: The Foundry Logic
 
-The **Foundry Architecture** represents a paradigm shift in personal platform engineering. It emphasizes structural transparency, high-density telemetry, and a "mechanical" UI that feels reactive and alive.
+The **Foundry Architecture** is designed for extreme technical transparency. It is a data-driven ecosystem where every interaction is logged, every asset is optimized, and every transition is physically simulated.
 
 ### 🛰️ Core Ecosystem Modules
 
 #### 🛡️ 1. The Command Center (Admin Matrix)
-A highly-privileged management environment for orchestrating the entire platform.
--   **Intelligence Hub**: Real-time traffic flux analysis using high-precision Chart.js visualizations.
-    -   **Traffic Flux**: 14-day telemetry tracking Views vs. Unique Visitors.
-    -   **Project Weight**: Distribution analysis of works across technical domains.
-    -   **Certificate Weight**: Analytical breakdown of licenses and credentials.
--   **System Telemetry**: Live heartbeat monitoring of Database health, Memory Heap, and Deployment uptime.
--   **Diagnostic Terminal**: Full forensic audit logs tracking every administrative directive.
--   **Incident Response**: Active security monitoring for system anomalies and platform events.
+The high-privileged orbital platform for full-scale architectural management.
+-   **Intelligence Hub**: Real-time traffic analytics via high-precision Chart.js visuals.
+    -   **Traffic Flux**: 14-day telemetry tracking Page Hits vs. Unique Entrants.
+    -   **Project Weight**: Real-time distribution analysis of engineering works.
+    -   **Certificate Weight**: Analytical breakdown of technical credentials.
+-   **System Telemetry**: Live metric ingestion for Database Latency, Heap Memory Usage, and Uptime.
+-   **Diagnostic Terminal**: Full forensic audit logs tracking every admin UID and directive path.
+-   **Incident Response**: Active monitoring for security anomalies and system-level performance dips.
 
 #### 🔐 2. The Shield (Security & Identity)
-Built on an advanced defensive matrix to ensure absolute system integrity.
--   **Dual-Layer Authentication**: Password-protected entry with mandatory **TOTP (RFC 6238)** Two-Factor Authentication.
--   **Encryption Matrix**: TOTP secrets are encrypted at rest using **AES-256-GCM** with per-user salt rotation.
--   **Session Matrix**: JWT-based identity handshakes using `HttpOnly`, `SameSite=Strict`, and `Secure` cookie protocols.
--   **Rate Limiting**: Multi-tiered protection (Login, 2FA, Registry API) to neutralize brute-force and DDoS vectors.
+A multi-layered defensive matrix ensuring absolute data sovereignty.
+-   **Dual-Layer Auth**: Mandatory **TOTP (RFC 6238)** verification for all privileged access.
+-   **Encryption Matrix**: Identity secrets are encrypted at rest using **AES-256-GCM** via the `TOTP_ENCRYPTION_KEY`.
+-   **Session Handshakes**: JWT tokens (Access/Refresh) utilizing `HttpOnly`, `Secure`, and `SameSite=Strict` browser protocols.
+-   **Rate Limiting Matrix**: Tactical throttling for Login (5/15m), 2FA (10/15m), and General API (100/1m) windows.
 
-#### 🖼️ 3. Visual Registry (Content Systems)
--   **Project Architecture**: Managed via a relational category system. Features masonry grid layouts, interactive 3D lightboxes, and multi-asset carousels.
--   **Certificate Vault**: High-precision credential management with "Featured" badges and skills-indexing.
--   **Journey Timeline**: A visual professional history featuring dual-alignment responsive milestones.
--   **Skills Matrix**: High-density tech-stack management organized by domains (Core, DB, Deployment, etc.).
+#### 🖼️ 3. Visual Registry (Dynamic Content)
+-   **Project Architecture**: Relational content system with masonry grid layouts and immersive 3D-interpolated lightboxes.
+-   **Certificate Vault**: Credential registry with indexing for "Featured" priority and multi-asset carousels.
+-   **Journey Timeline**: professional history milestones with responsive dual-alignment logic.
+-   **Skills Matrix**: High-density tech management organized into modular logic domains (Core, DB, DevOps).
 
 ---
 
-## 🛠️ Technical Engineering Stack
+## 🛠️ Engineering Tech Stack Matrix
 
-| Layer | Standard | Implementation |
+| Layer | Standard | Implementation Logic |
 | :--- | :--- | :--- |
-| **Foundation** | Next.js 15 (App Router) | React 19, Server Actions, Edge Logic |
-| **Logic** | TypeScript | Strict Null Checks, Type-Safe API Links |
-| **Aesthetics** | Tailwind CSS 4 | Custom Foundry Design Tokens, Glassmorphism |
-| **Motion** | Framer Motion | High-Frequency Layout Transitions, Micro-Animations |
-| **Storage** | Cloudflare R2 | S3-compatible Object Vault with Automatic Purging |
-| **Data Engine** | MySQL (MariaDB) | Relationally Indexed, Serverless Query Handlers |
-| **Protection** | Cloudflare Turnstile | Captcha-less bot mitigation for all transmissions |
-| **SEO Core** | Dynamic Metadata | Database-driven SEO Orchestration (`generateMetadata`) |
+| **Foundation** | Next.js 15 | React 19, Server Components, Turbopack |
+| **Logic** | TypeScript | Strict Null Checks, Modular Type Handlers |
+| **Aesthetics** | Tailwind CSS 4 | Custom Foundry Design Tokens, Hardware-accelerated blurs |
+| **Motion** | Framer Motion | Spring-physics transitions, Layout ID reconciliation |
+| **Interaction** | Lenis | High-fidelity smooth scrolling and scroll-bound animations |
+| **Storage** | Cloudflare R2 | S3-Compatible Object Storage with automated R2 clearing |
+| **Data Engine** | MySQL (MariaDB) | Relationally indexed query pooling via `mysql2` |
+| **Protection** | Turnstile | Cloudflare's invisible challenge protocol for bot neutralization |
+| **SEO Core** | Dynamic Metadata | Server-side metadata orchestration via `generateMetadata` |
 
 ---
 
-## 🎨 Design Engine: "Foundry Aesthetics"
+## 🎨 Design Engine: "The Foundry Aesthetics"
 
-The project utilizes a custom-engineered CSS variable matrix (`src/app/globals.css`) designed for **dark-room scanability**:
--   **OLED Deep Blacks**: `--background: #0a0a0b`.
--   **Foundry Gradients**: Metallic-sheen overlays and glassmorphic blurs (`backdrop-blur-2xl`).
--   **Surgical Typography**: Integrated **Space Grotesk** and custom **LINE Seed** weights for maximum technical readability.
--   **Micro-Interactions**: Custom "Neural Cursor" mouse effects and smooth-scroll propagation.
+The project utilizes a custom design token system defined in `src/app/globals.css`.
 
----
+### Visual Protocols
+-   **OLED Background**: `#0a0a0b` for maximum high-contrast scanning.
+-   **Foundry Accent**: Precision blues and purples (`#3b82f6`, `#a855f7`).
+-   **Glassmorphism**: Surgical border-opacity and backdrop-blur-2xl filters.
+-   **Neural Cursor**: Interactive mouse-tracking effect for tactile engagement.
 
-## �️ Database Specification: Neural Schema
-
-Relational data structure optimized for speed and integrity:
-
--   `admins`: Core identity and encrypted encryption keys.
--   `projects`: Content registry with JSON-serialized asset arrays.
--   `certificates`: Credential registry with indexing for Featured items.
--   `traffic_logs`: High-frequency hit-tracking with IP hashing for privacy-compliant analytics.
--   `incidents`: Forensic records of system-level alerts and performance dips.
--   `seo_settings`: Dynamic site-wide metadata, OG Image configurations, and keywords.
--   `skill_categories` & `skills`: Nested relational system for technical proficiency.
+### Typography Matrix
+-   **Technical Headline**: `Space Grotesk` (Variable).
+-   **Data Readout**: `LINE Seed Sans` (TH/EN).
+-   **Foundry Scripts**: Custom `SOV_RangBab` and `SOV_KhongKhanad` for mechanical aesthetic accents.
 
 ---
 
-## 📡 Neural Link: API Matrix (Reference)
+## 🗃️ Database Specification: Neural Schema
 
-### 🔐 Auth Handshakes
--   `POST /api/auth/login` → Session Initialization.
--   `POST /api/auth/2fa/verify` → High-privileged access grant.
--   `POST /api/auth/logout` → Secure session destruction.
+Relational data structure designed for relational integrity and query velocity:
 
-### �️ System Control
--   `GET /api/admin/health` → Integrated telemetry & system diagnostics.
--   `GET /api/admin/analytics/summary` → Collective distribution data.
--   `POST /api/track` → Anonymous telemetry ingestion.
+-   `admins`: Privileged identity storage with encrypted binary keys.
+-   `projects`: Content registry with JSON-serialized technology stacks and links.
+-   `certificates`: Credential registry with automatic categorization and featured-weight indexing.
+-   `traffic_logs`: High-frequency metrics (IP hashes, paths, referrers, UA strings).
+-   `incidents`: Forensic logs for system status changes and security events.
+-   `seo_settings`: Dynamic management of Site Title, Description, and OG Graph images.
+-   `skill_categories` & `skills`: Reorderable nested system for tech-stack display.
 
-### 🖼️ Registry Access
--   `GET/POST /api/admin/projects` → Work registry orchestration.
--   `GET/POST /api/admin/certificates` → Credential vault management.
+---
+
+## 📡 API Link Matrix (Architectural Reference)
+
+### 🔐 Authentication Protocols
+-   `POST /api/auth/login` → Initial identity handshake.
+-   `POST /api/auth/2fa/verify` → High-privilege session granting.
+-   `GET /api/auth/me` → Continuous signature verification.
+
+### 🛰️ System Telemetry
+-   `GET /api/admin/health` → Service status & hardware heartbeats.
+-   `GET /api/admin/analytics/summary` → Collective distribution data ingestion.
+-   `POST /api/track` → Privacy-aware telemetry ingestion.
+
+---
+
+## 📂 Structural Manifest
+
+```text
+src/
+├── app/                  # Application Logic (Next.js 15)
+│   ├── admin/            # Command Center UI (Intelligence Hub, Registry)
+│   ├── api/              # Restful Neural Link Endpoints (Auth, Telemetry)
+│   ├── (site)/           # High-Performance UI (About, Contact, Gallery)
+│   └── layout.tsx        # Neural Core Layout (Header, SmoothScroll)
+├── components/           # Modular Interface Modules
+│   ├── admin/            # Management Widgets (CategoryManager, Uploader)
+│   ├── Carousel.tsx      # High-end Visual Display Engine
+│   └── ProjectLightBox.tsx # Immersive Forensic Inspection
+├── lib/                  # Engineering Nucleus
+│   ├── db.ts             # Connection Pool Orchestration
+│   ├── r2.ts             # Cloudflare Storage Protocols
+│   └── middleware/       # Identity & Rate-Limiting Logic
+└── database/             # Relational Migrations & Entity Definitions
+```
 
 ---
 
 ## 🚀 Neural Initialization Sequence
 
-1.  **Clone the Core**: `git clone https://github.com/zpleum/zPleum.site.git`
+1.  **Clone the Architecture**: `git clone https://github.com/zpleum/zPleum.site.git`
 2.  **Install Nucleus**: `npm install`
-3.  **Setup Environment**: Populate `.env` from the manifest below.
-4.  **Database Ignition**: Execute SQL migrations from `database/migrations/`.
-5.  **Platform Launch**: `npm run dev`
+3.  **Configure Manifest**: Populated `.env` using the template below.
+4.  **Database Migration**: Execute SQL directives from `database/migrations/`.
+5.  **Platform Ignition**: `npm run dev`
 
 ---
 
@@ -141,7 +167,6 @@ JWT_ACCESS_SECRET=your_random_access_secret_here
 JWT_REFRESH_SECRET=your_random_refresh_secret_here
 
 # [IDENTITY]: TOTP Encryption Layer (2FA)
-# Generate via: openssl rand -hex 32
 TOTP_ENCRYPTION_KEY=your_64_char_hex_encryption_key_here
 
 # [ORCHESTRATION]: System Access Protocols

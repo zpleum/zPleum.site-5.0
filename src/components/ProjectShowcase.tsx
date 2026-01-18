@@ -1,8 +1,8 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import { ArrowRight, Github, ExternalLink } from "lucide-react";
+import { ArrowLeft, ArrowRight, Github, ExternalLink, X } from "lucide-react";
 import { useState, useEffect } from "react";
 
 type Project = {
@@ -24,10 +24,48 @@ import Link from "next/link";
 export default function ProjectShowcase() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const [lightboxState, setLightboxState] = useState<{
+    images: string[];
+    currentIndex: number;
+    title: string;
+    category?: string;
+    projectId: string;
+  } | null>(null);
 
   useEffect(() => {
     fetchFeaturedProjects();
   }, []);
+
+  // Keyboard Navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!lightboxState) return;
+      if (e.key === 'ArrowRight') nextImage();
+      if (e.key === 'ArrowLeft') prevImage();
+      if (e.key === 'Escape') setLightboxState(null);
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [lightboxState]);
+
+  const nextImage = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (!lightboxState) return;
+    setLightboxState(prev => prev ? ({
+      ...prev,
+      currentIndex: (prev.currentIndex + 1) % prev.images.length
+    }) : null);
+  };
+
+  const prevImage = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (!lightboxState) return;
+    setLightboxState(prev => prev ? ({
+      ...prev,
+      currentIndex: (prev.currentIndex - 1 + prev.images.length) % prev.images.length
+    }) : null);
+  };
 
   const fetchFeaturedProjects = async () => {
     try {
@@ -86,14 +124,36 @@ export default function ProjectShowcase() {
             {/* Project Image Container */}
             <div className="relative lg:w-[45%] h-[280px] lg:h-auto overflow-hidden">
               {project.images && project.images.length > 0 ? (
-                <Carousel images={project.images} title={project.title} />
-              ) : project.image_url ? (
-                <Image
-                  src={project.image_url}
-                  alt={project.title}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-1000 ease-out"
+                <Carousel
+                  images={project.images}
+                  title={project.title}
+                  onImageClick={(src, alt, idx) => setLightboxState({
+                    images: project.images!,
+                    currentIndex: idx,
+                    title: project.title,
+                    category: project.category,
+                    projectId: project.id
+                  })}
                 />
+              ) : project.image_url ? (
+                <div
+                  className="relative w-full h-full cursor-zoom-in"
+                  onClick={() => setLightboxState({
+                    images: [project.image_url],
+                    currentIndex: 0,
+                    title: project.title,
+                    category: project.category,
+                    projectId: project.id
+                  })}
+                >
+                  <Image
+                    src={project.image_url}
+                    alt={project.title}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-1000 ease-out"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[var(--card-bg)]/80 via-transparent to-transparent opacity-40 group-hover:opacity-0 transition-opacity duration-500"></div>
+                </div>
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-blue-500/5">
                   <span className="text-6xl opacity-20">📁</span>
@@ -172,6 +232,85 @@ export default function ProjectShowcase() {
           <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
         </Link>
       </div>
+
+      {/* Cinema-Grade Lightbox */}
+      <AnimatePresence>
+        {lightboxState && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-6 md:p-12"
+          >
+            <div
+              className="absolute inset-0 bg-black/95 backdrop-blur-3xl"
+              onClick={() => setLightboxState(null)}
+            />
+
+            <motion.button
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.5 }}
+              className="absolute top-6 sm:top-10 right-6 sm:right-10 p-4 sm:p-6 bg-white/5 rounded-full text-white hover:bg-white/10 transition-all border border-white/10 z-[110] shadow-2xl backdrop-blur-xl"
+              onClick={() => setLightboxState(null)}
+            >
+              <X size={24} className="sm:w-[32px] sm:h-[32px]" strokeWidth={3} />
+            </motion.button>
+
+            {/* Navigation Buttons */}
+            {lightboxState.images.length > 1 && (
+              <>
+                <button
+                  onClick={prevImage}
+                  className="absolute left-6 sm:left-10 top-1/2 -translate-y-1/2 p-4 sm:p-6 bg-white/5 rounded-full text-white hover:bg-white/10 transition-all border border-white/10 z-[110] shadow-2xl backdrop-blur-xl group"
+                >
+                  <ArrowLeft className="sm:w-[32px] sm:h-[32px]" />
+                </button>
+                <button
+                  onClick={nextImage}
+                  className="absolute right-6 sm:right-10 top-1/2 -translate-y-1/2 p-4 sm:p-6 bg-white/5 rounded-full text-white hover:bg-white/10 transition-all border border-white/10 z-[110] shadow-2xl backdrop-blur-xl group"
+                >
+                  <ArrowRight className="sm:w-[32px] sm:h-[32px]" />
+                </button>
+              </>
+            )}
+
+            <motion.div
+              key={lightboxState.currentIndex}
+              initial={{ opacity: 0, scale: 0.9, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 30 }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="relative w-full max-w-6xl aspect-[4/3] md:aspect-video rounded-[3rem] overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.5)] border border-white/5"
+            >
+              <Image
+                src={lightboxState.images[lightboxState.currentIndex]}
+                alt={`${lightboxState.title} - View ${lightboxState.currentIndex + 1}`}
+                fill
+                className="object-contain"
+                priority
+              />
+
+              {/* Lightbox Info Bar */}
+              <div className="absolute bottom-0 inset-x-0 p-6 sm:p-12 bg-gradient-to-t from-black via-black/80 to-transparent flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6 pointer-events-none">
+                <div>
+                  <span className="text-[10px] sm:text-sm font-black text-blue-400 uppercase tracking-[0.4em] mb-2 sm:mb-4 block">
+                    Project ID: {lightboxState.projectId.slice(0, 8)}-{lightboxState.currentIndex === 0 ? 'MAIN' : `VIEW-0${lightboxState.currentIndex + 1}`}
+                  </span>
+                  <h3 className="text-xl sm:text-5xl font-black text-white uppercase tracking-tighter leading-[0.9] sm:leading-none">
+                    {lightboxState.title} <span className="text-white/30 text-lg sm:text-2xl ml-2">[{lightboxState.currentIndex + 1}/{lightboxState.images.length}]</span>
+                  </h3>
+                </div>
+                {lightboxState.category && (
+                  <div className="px-4 sm:px-6 py-1.5 sm:py-2 bg-white/10 backdrop-blur-xl border border-white/10 rounded-full text-white font-black uppercase tracking-[0.2em] text-[10px] sm:text-sm w-fit">
+                    {lightboxState.category}
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }

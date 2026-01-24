@@ -10,7 +10,8 @@ import {
     Search,
     RefreshCw,
     Database,
-    Filter
+    Filter,
+    ChevronDown
 } from 'lucide-react';
 
 interface Log {
@@ -28,6 +29,7 @@ export default function LogsPage() {
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [filterAction, setFilterAction] = useState('All');
+    const [showFilterDropdown, setShowFilterDropdown] = useState(false);
 
     useEffect(() => {
         fetchLogs();
@@ -68,7 +70,7 @@ export default function LogsPage() {
         const matchesSearch =
             log.admin_email?.toLowerCase().includes(search.toLowerCase()) ||
             log.action?.toLowerCase().includes(search.toLowerCase()) ||
-            log.details?.toLowerCase().includes(search.toLowerCase());
+            (typeof log.details === 'string' ? log.details : JSON.stringify(log.details || {})).toLowerCase().includes(search.toLowerCase());
 
         const matchesAction = filterAction === 'All' || log.action === filterAction;
 
@@ -113,16 +115,52 @@ export default function LogsPage() {
                         />
                     </div>
                     <div className="relative w-full md:w-64">
-                        <Filter className="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--foreground)]/30" size={18} />
-                        <select
-                            value={filterAction}
-                            onChange={(e) => setFilterAction(e.target.value)}
-                            className="w-full pl-14 pr-10 py-4 bg-[var(--card-bg)]/50 backdrop-blur-xl border border-[var(--border)] rounded-2xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium appearance-none"
+                        <button
+                            onClick={() => setShowFilterDropdown(!showFilterDropdown)}
+                            className="w-full pl-14 pr-6 py-4 bg-[var(--card-bg)]/50 backdrop-blur-xl border border-[var(--border)] rounded-2xl text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-bold shadow-2xl flex items-center justify-between hover:bg-[var(--card-bg)]/70 group"
                         >
-                            {uniqueActions.map(action => (
-                                <option key={action} value={action} className="bg-[var(--card-bg)]">{action}</option>
-                            ))}
-                        </select>
+                            <div className="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--foreground)]/30 group-hover:text-blue-500 transition-colors">
+                                <Filter size={18} />
+                            </div>
+                            <span className="truncate">{filterAction}</span>
+                            <ChevronDown size={18} className={`transition-transform duration-300 ${showFilterDropdown ? 'rotate-180' : ''} opacity-30`} />
+                        </button>
+
+                        <AnimatePresence>
+                            {showFilterDropdown && (
+                                <>
+                                    <div
+                                        className="fixed inset-0 z-[60]"
+                                        onClick={() => setShowFilterDropdown(false)}
+                                    />
+                                    <motion.div
+                                        initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                                        exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                                        className="absolute top-full mt-2 left-0 w-full bg-[var(--card-bg)]/90 backdrop-blur-2xl border border-[var(--border)] rounded-2xl shadow-2xl overflow-hidden z-[70] py-2"
+                                    >
+                                        <div className="max-h-64 overflow-y-auto custom-scrollbar">
+                                            {uniqueActions.map(action => (
+                                                <button
+                                                    key={action}
+                                                    onClick={() => {
+                                                        setFilterAction(action);
+                                                        setShowFilterDropdown(false);
+                                                    }}
+                                                    className={`w-full px-6 py-3 text-left hover:bg-blue-500/10 transition-all font-bold flex items-center justify-between group ${filterAction === action ? 'text-blue-500 bg-blue-500/5' : 'text-[var(--foreground)]'
+                                                        }`}
+                                                >
+                                                    <span>{action}</span>
+                                                    {filterAction === action && (
+                                                        <div className="w-1.5 h-1.5 bg-blue-500 rounded-full shadow-[0_0_10px_rgba(59,130,246,0.5)]"></div>
+                                                    )}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </motion.div>
+                                </>
+                            )}
+                        </AnimatePresence>
                     </div>
                     <button
                         onClick={fetchLogs}
@@ -186,7 +224,7 @@ export default function LogsPage() {
                                                 <td className="px-8 py-6">
                                                     <div className="max-w-xs space-y-1">
                                                         {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                                                                                                                {Object.entries(details).map(([key, val]: [string, any]) => (
+                                                        {Object.entries(details).map(([key, val]: [string, any]) => (
                                                             <div key={key} className="flex items-center gap-2 text-[10px]">
                                                                 <span className="font-black uppercase tracking-widest opacity-30">{key}:</span>
                                                                 <span className="font-medium truncate block">{JSON.stringify(val)}</span>
